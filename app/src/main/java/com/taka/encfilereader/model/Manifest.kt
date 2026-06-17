@@ -1,5 +1,6 @@
 package com.taka.encfilereader.model
 
+import kotlinx.serialization.json.Json
 import javax.crypto.Cipher
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.GCMParameterSpec
@@ -39,6 +40,8 @@ class Manifest (val path: String){
         val gcmSpec = GCMParameterSpec(128, currentIv)
         cipher.init(Cipher.DECRYPT_MODE, this.key, gcmSpec)
 
-        val decManifestRaw = String(cipher.doFinal(currentRawData + currentTag))
+        val decRawData = String(cipher.doFinal(currentRawData + currentTag))
+
+        val files = Json.decodeFromString<List<FileMetaData>>(decRawData)
     }
 }

@@ -1,5 +1,8 @@
 package com.taka.encfilereader.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class FileMetaData(
     val fileName: String,
     val originalFileName: String,
