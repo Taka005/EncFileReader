@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">EncFileReader</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="app_name">Encrypt File Reader</string>
+    <string name="title_activity_main">Encrypt File Reader</string>
 </resources>
