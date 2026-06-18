@@ -14,7 +14,7 @@ open class Manifest (val path: String){
     open val fileCount: Int
         get() = files.size
 
-    fun setBuffer(data: ByteArray,password: String): Result<Unit>{
+    open fun setBuffer(data: ByteArray,password: String): Result<Unit>{
         if (data.size < 44) return Result.failure(IllegalArgumentException("データサイズ不足: ${data.size}"))
 
         val salt: ByteArray = data.sliceArray(0 until 16)
@@ -26,7 +26,7 @@ open class Manifest (val path: String){
             return Result.failure(error)
         }
 
-        val decRawData = decryptData(rawData + tag, salt, iv, password).getOrElse { error ->
+        val decRawData = decryptData(rawData + tag, iv).getOrElse { error ->
             return Result.failure(error)
         }
 
@@ -37,14 +37,33 @@ open class Manifest (val path: String){
         }
     }
 
-    fun getContent(data: ByteArray){
+    open fun getContent(data: ByteArray,fileIndex: Int,contentIndex: Int): Result<ByteArray>{
+        if(this.fileCount == 0) return Result.failure(IllegalArgumentException("ファイルデータが存在しません"))
 
+        val fileData = this.files.getOrNull(fileIndex) ?: return Result.failure(
+            IndexOutOfBoundsException("ファイルの指定が範囲外です")
+        )
+
+        val contentData = fileData.contents.getOrNull(fileIndex) ?: return Result.failure(
+            IndexOutOfBoundsException("コンテンツの指定が範囲外です")
+        )
+
+        val iv = contentData.iv.hexToByteArray()
+        val tag = contentData.tag.hexToByteArray()
+
+        val decRawData = decryptData(data + tag, iv).getOrElse { error ->
+            return Result.failure(error)
+        }
+
+        return Result.success(decRawData.toByteArray())
     }
 
-    fun decryptData(content: ByteArray, salt: ByteArray, iv: ByteArray, password: String): Result<String> {
+    fun decryptData(content: ByteArray, iv: ByteArray): Result<String> {
+        val currentKey = this.key ?: return Result.failure(IllegalArgumentException("鍵が設定されていません"))
+
         return runCatching {
             val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-            cipher.init(Cipher.DECRYPT_MODE, this.key, GCMParameterSpec(128, iv))
+            cipher.init(Cipher.DECRYPT_MODE, currentKey, GCMParameterSpec(128, iv))
 
             String(cipher.doFinal(content))
         }
@@ -60,14 +79,14 @@ open class Manifest (val path: String){
 
     }
 
-    fun sortFiles(): Unit{
+    fun sortFiles(){
         this.files.sortWith(
             compareBy { it.originalFileName }
         )
 
         this.files.forEach { data ->
             data.contents.sortWith(
-                compareBy({ it.name })
+                compareBy { it.name }
             )
         }
     }
