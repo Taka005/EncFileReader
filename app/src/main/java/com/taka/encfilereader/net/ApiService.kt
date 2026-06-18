@@ -1,4 +1,4 @@
-package com.taka.encfilereader.service
+package com.taka.encfilereader.net
 
 import okhttp3.ResponseBody
 import retrofit2.http.GET
@@ -8,7 +8,7 @@ import retrofit2.http.Streaming
 
 interface ApiService {
     @GET("api/manifest")
-    suspend fun getManifestList(): ResponseBody
+    suspend fun getManifestList(): List<String>
 
     @GET("api/download")
     suspend fun getManifestData(
@@ -18,7 +18,7 @@ interface ApiService {
     @Streaming
     @GET("api/download")
     suspend fun getFileData(
-        @Header("Range") range: String,
-        @Query("path") path: String
+        @Query("path") path: String,
+        @Header("Range") range: String
     ): ResponseBody
 }

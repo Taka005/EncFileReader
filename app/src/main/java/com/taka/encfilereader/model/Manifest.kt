@@ -8,7 +8,7 @@ import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
 import kotlin.comparisons.compareBy
 
-open class Manifest (val path: String){
+open class Manifest (val dirName: String){
     var key: SecretKeySpec? = null
     var files: MutableList<FileMetaData> = mutableListOf()
     open val fileCount: Int
