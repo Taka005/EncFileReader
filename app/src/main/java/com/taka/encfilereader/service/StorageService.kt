@@ -51,8 +51,6 @@ open class StorageService(val baseUrl: String){
             return Result.failure(error)
         }
 
-        manifest.setBuffer(data,password)
-
-        return Result.success(Unit)
+        return manifest.setBuffer(data,password)
     }
 }
