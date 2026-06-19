@@ -19,7 +19,7 @@ class StorageService(val baseUrl: String){
         return Result.success(manifest)
     }
 
-    suspend fun getContent(
+    suspend fun getContentData(
         manifestIndex: Int,
         fileIndex: Int,
         contentIndex: Int
