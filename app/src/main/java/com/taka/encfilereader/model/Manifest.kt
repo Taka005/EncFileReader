@@ -10,11 +10,14 @@ import kotlin.comparisons.compareBy
 
 open class Manifest (val dirName: String){
     var key: SecretKeySpec? = null
-    var files: MutableList<FileMetaData> = mutableListOf()
+    private var files: MutableList<FileMetaData> = mutableListOf()
     open val fileCount: Int
         get() = files.size
 
-    open fun setBuffer(data: ByteArray,password: String): Result<Unit>{
+    open fun setBuffer(
+        data: ByteArray,
+        password: String
+    ): Result<Unit>{
         if (data.size < 44) return Result.failure(IllegalArgumentException("データサイズ不足: ${data.size}"))
 
         val salt: ByteArray = data.sliceArray(0 until 16)
@@ -33,11 +36,15 @@ open class Manifest (val dirName: String){
         return runCatching {
             this.files = Json.decodeFromString<MutableList<FileMetaData>>(decRawData)
 
-            sortFiles()
+            this.sortFiles()
         }
     }
 
-    open fun getContent(data: ByteArray,fileIndex: Int,contentIndex: Int): Result<ByteArray>{
+    open fun getContent(
+        data: ByteArray,
+        fileIndex: Int,
+        contentIndex: Int
+    ): Result<ByteArray>{
         if(this.fileCount == 0) return Result.failure(IllegalArgumentException("ファイルデータが存在しません"))
 
         val fileData = this.files.getOrNull(fileIndex) ?: return Result.failure(
@@ -58,7 +65,10 @@ open class Manifest (val dirName: String){
         return Result.success(decRawData.toByteArray())
     }
 
-    fun decryptData(content: ByteArray, iv: ByteArray): Result<String> {
+    private fun decryptData(
+        content: ByteArray,
+        iv: ByteArray
+    ): Result<String> {
         val currentKey = this.key ?: return Result.failure(IllegalArgumentException("鍵が設定されていません"))
 
         return runCatching {
@@ -69,7 +79,10 @@ open class Manifest (val dirName: String){
         }
     }
 
-    fun createKey(salt: ByteArray,password: String): Result<SecretKeySpec>{
+    private fun createKey(
+        salt: ByteArray,
+        password: String
+    ): Result<SecretKeySpec>{
         return runCatching {
             val spec = PBEKeySpec(password.toCharArray(), salt, 100000, 256)
             val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
