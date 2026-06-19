@@ -8,14 +8,14 @@ import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
 import kotlin.comparisons.compareBy
 
-open class Manifest (val dirName: String){
+class Manifest (val dirName: String){
     var originalDirName: String? = null;
-    var key: SecretKeySpec? = null
+    private var key: SecretKeySpec? = null
     private var files: MutableList<FileMetaData> = mutableListOf()
-    open val fileCount: Int
+    val fileCount: Int
         get() = files.size
 
-    open fun setBuffer(
+    fun setBuffer(
         data: ByteArray,
         password: String
     ): Result<Unit>{
@@ -44,23 +44,20 @@ open class Manifest (val dirName: String){
         }
     }
 
-    open fun getContent(
-        data: ByteArray,
-        fileIndex: Int,
-        contentIndex: Int
-    ): Result<ByteArray>{
-        if(this.fileCount == 0) return Result.failure(IllegalArgumentException("ファイルデータが存在しません"))
-
-        val fileData = this.files.getOrNull(fileIndex) ?: return Result.failure(
+    fun getFileMetaData(index: Int): Result<FileMetaData>{
+        val fileMetaData = this.files.getOrNull(index) ?: return Result.failure(
             IndexOutOfBoundsException("ファイルの指定が範囲外です")
         )
 
-        val contentData = fileData.contents.getOrNull(fileIndex) ?: return Result.failure(
-            IndexOutOfBoundsException("コンテンツの指定が範囲外です")
-        )
+        return Result.success(fileMetaData)
+    }
 
-        val iv = contentData.iv.hexToByteArray()
-        val tag = contentData.tag.hexToByteArray()
+    fun getContentData(
+        data: ByteArray,
+        contentMetaData: ContentMetaData
+    ): Result<ByteArray>{
+        val iv = contentMetaData.iv.hexToByteArray()
+        val tag = contentMetaData.tag.hexToByteArray()
 
         val decRawData = decryptData(data + tag, iv).getOrElse { error ->
             return Result.failure(error)

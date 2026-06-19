@@ -3,27 +3,49 @@ package com.taka.encfilereader.service
 import com.taka.encfilereader.model.Manifest
 import com.taka.encfilereader.net.ApiClient
 
-open class StorageService(val baseUrl: String){
+class StorageService(val baseUrl: String){
     private val manifests: MutableList<Manifest> = mutableListOf()
 
     private val apiClient = ApiClient(this.baseUrl)
 
-    open val manifestCount: Int
+    val manifestCount: Int
         get() = this.manifests.size
 
-    open fun getManifest(index: Int): Result<Manifest>{
+    fun getManifest(index: Int): Result<Manifest>{
         val manifest = this.manifests.getOrNull(index) ?: return Result.failure(
-            IndexOutOfBoundsException("ファイルの指定が範囲外です")
+            IndexOutOfBoundsException("マニフェストの指定が範囲外です")
         )
 
         return Result.success(manifest)
     }
 
-//    open fun getContent(): Result<ByteArray>{
-//
-//    }
+    suspend fun getContent(
+        manifestIndex: Int,
+        fileIndex: Int,
+        contentIndex: Int
+    ): Result<ByteArray>{
+        val manifest = this.getManifest(manifestIndex).getOrElse { error ->
+            return Result.failure(error)
+        }
 
-    open suspend fun downloadManifestList(): Result<Unit>{
+        val fileData = manifest.getFileMetaData(fileIndex).getOrElse { error ->
+            return Result.failure(error)
+        }
+
+        val contentMetaData = fileData.getContentMetaData(contentIndex).getOrElse { error ->
+            return Result.failure(error)
+        }
+
+        val path = "${manifest.dirName}/${fileData.fileName}"
+
+        val data = this.apiClient.fetchFile(path,contentMetaData.start,contentMetaData.end).getOrElse { error ->
+            return Result.failure(error)
+        }
+
+        return manifest.getContentData(data,contentMetaData)
+    }
+
+    suspend fun downloadManifestList(): Result<Unit>{
         val list = this.apiClient.fetchManifestList().getOrElse { error ->
             return Result.failure(error)
         }
@@ -39,7 +61,7 @@ open class StorageService(val baseUrl: String){
         return Result.success(Unit)
     }
 
-    open suspend fun downloadManifestData(
+    suspend fun downloadManifestData(
         password: String,
         index: Int
     ): Result<Unit>{

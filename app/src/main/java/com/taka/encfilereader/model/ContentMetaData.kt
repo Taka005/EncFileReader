@@ -6,7 +6,11 @@ import kotlinx.serialization.Serializable
 data class ContentMetaData(
     val name: String,
     val start: Int,
-    val end: Int,
+    val size: Int,
     val iv: String,
     val tag: String
-)
+){
+    val end: Int
+        get() = this.start + this.size - 1
+
+}

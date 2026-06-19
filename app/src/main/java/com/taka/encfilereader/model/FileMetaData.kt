@@ -8,6 +8,16 @@ data class FileMetaData(
     val originalFileName: String,
     val contents: Array<ContentMetaData>
 ) {
+    fun getContentMetaData(
+        index: Int
+    ): Result<ContentMetaData>{
+        val contentMetaData = this.contents.getOrNull(index) ?: return Result.failure(
+            IndexOutOfBoundsException("コンテンツの指定が範囲外です")
+        )
+
+        return Result.success(contentMetaData)
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
