@@ -7,7 +7,7 @@ import retrofit2.Retrofit
 
 open class ApiClient(val baseUrl: String){
     private val retrofit = Retrofit.Builder()
-        .baseUrl(baseUrl)
+        .baseUrl(if (baseUrl.endsWith("/")) baseUrl else "$baseUrl/")
         .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
         .build()
 
