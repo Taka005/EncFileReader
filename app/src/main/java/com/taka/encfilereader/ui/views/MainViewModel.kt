@@ -13,7 +13,7 @@ class MainViewModel: ViewModel() {
     private val _uiState = MutableStateFlow<UiState>(UiState.Initial)
     val uiState: StateFlow<UiState> = _uiState
     private var password: String? = null
-    private var storage: StorageService? = null
+    var storage: StorageService? = null
 
     fun setInitSettings(baseUrl: String, password: String){
         if (baseUrl.isBlank()) {

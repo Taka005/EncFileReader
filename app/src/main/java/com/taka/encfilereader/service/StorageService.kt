@@ -2,6 +2,8 @@ package com.taka.encfilereader.service
 
 import com.taka.encfilereader.model.Manifest
 import com.taka.encfilereader.net.ApiClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class StorageService(val baseUrl: String){
     private val manifests: MutableList<Manifest> = mutableListOf()
@@ -23,26 +25,26 @@ class StorageService(val baseUrl: String){
         manifestIndex: Int,
         fileIndex: Int,
         contentIndex: Int
-    ): Result<ByteArray>{
-        val manifest = this.getManifest(manifestIndex).getOrElse { error ->
-            return Result.failure(error)
+    ): Result<ByteArray> = withContext(Dispatchers.IO) {
+        val manifest = getManifest(manifestIndex).getOrElse {
+            return@withContext Result.failure(it)
         }
 
-        val fileData = manifest.getFileMetaData(fileIndex).getOrElse { error ->
-            return Result.failure(error)
+        val fileData = manifest.getFileMetaData(fileIndex).getOrElse {
+            return@withContext Result.failure(it)
         }
 
-        val contentMetaData = fileData.getContentMetaData(contentIndex).getOrElse { error ->
-            return Result.failure(error)
+        val contentMetaData = fileData.getContentMetaData(contentIndex).getOrElse {
+            return@withContext Result.failure(it)
         }
 
         val path = "${manifest.dirName}/${fileData.fileName}"
+        val data = apiClient.fetchFile(path, contentMetaData.start, contentMetaData.end)
+            .getOrElse { return@withContext Result.failure(it) }
 
-        val data = this.apiClient.fetchFile(path,contentMetaData.start,contentMetaData.end).getOrElse { error ->
-            return Result.failure(error)
+        return@withContext withContext(Dispatchers.Default) {
+            manifest.getContentData(data, contentMetaData)
         }
-
-        return manifest.getContentData(data,contentMetaData)
     }
 
     suspend fun downloadManifestList(): Result<Unit>{
@@ -61,19 +63,14 @@ class StorageService(val baseUrl: String){
         return Result.success(Unit)
     }
 
-    suspend fun downloadManifestData(
-        password: String,
-        index: Int
-    ): Result<Unit>{
-        val manifest = this.getManifest(index).getOrElse { error ->
-            return Result.failure(error)
-        }
+    suspend fun downloadManifestData(password: String, index: Int): Result<Unit> = withContext(Dispatchers.IO) {
+        val manifest = this@StorageService.getManifest(index).getOrElse { return@withContext Result.failure(it) }
 
-        val data = this.apiClient.fetchManifest(manifest.dirName).getOrElse { error ->
-            return Result.failure(error)
-        }
+        val data = apiClient.fetchManifest(manifest.dirName).getOrElse { return@withContext Result.failure(it) }
 
-        return manifest.setBuffer(data,password)
+        return@withContext withContext(Dispatchers.Default) {
+            manifest.setBuffer(data, password)
+        }
     }
 
     suspend fun checkValidPassword(password: String): Result<Unit>{

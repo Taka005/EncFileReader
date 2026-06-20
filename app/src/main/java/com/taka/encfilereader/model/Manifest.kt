@@ -35,7 +35,7 @@ class Manifest (val dirName: String){
         }
 
         return runCatching {
-            val metaData = Json.decodeFromString<ManifestMetaData>(decRawData)
+            val metaData = Json.decodeFromString<ManifestMetaData>(String(decRawData))
 
             this.files = metaData.files.toMutableList()
             this.originalDirName = metaData.originalDirName
@@ -63,20 +63,20 @@ class Manifest (val dirName: String){
             return Result.failure(error)
         }
 
-        return Result.success(decRawData.toByteArray())
+        return Result.success(decRawData)
     }
 
     private fun decryptData(
         content: ByteArray,
         iv: ByteArray
-    ): Result<String> {
+    ): Result<ByteArray> {
         val currentKey = this.key ?: return Result.failure(IllegalArgumentException("鍵が設定されていません"))
 
         return runCatching {
             val cipher = Cipher.getInstance("AES/GCM/NoPadding")
             cipher.init(Cipher.DECRYPT_MODE, currentKey, GCMParameterSpec(128, iv))
 
-            String(cipher.doFinal(content))
+            cipher.doFinal(content)
         }
     }
 

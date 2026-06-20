@@ -5,7 +5,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.taka.encfilereader.ui.ImageGridScreen
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
@@ -31,7 +30,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             })
         }
         composable("manifestList") {
-            ImageGridScreen(columns = 2)
+            ManifestListScreen(columns = 2)
         }
     }
 }

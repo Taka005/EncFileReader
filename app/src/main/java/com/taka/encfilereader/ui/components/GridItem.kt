@@ -11,17 +11,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.taka.encfilereader.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GridItem() {
+fun GridItem(
+    imageData: ByteArray?,
+    title: String,
+    fileCount: Int
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -30,18 +34,18 @@ fun GridItem() {
     ){
         Column{
             AsyncImage(
-                model = R.drawable.placeholder_loading,
+                model = imageData,
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(4f/5f),
                 contentScale = ContentScale.Crop,
-                error = painterResource(R.drawable.ic_launcher_background),
-                placeholder = painterResource(R.drawable.ic_launcher_background)
+                error = ColorPainter(MaterialTheme.colorScheme.surface),
+                placeholder = ColorPainter(MaterialTheme.colorScheme.surface),
             )
 
             Text(
-                text = "これはテスト",
+                text = title,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 0.dp),
@@ -53,7 +57,7 @@ fun GridItem() {
             )
 
             Text(
-                text = "10ファイル",
+                text = "${fileCount}ファイル",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 8.dp, end = 8.dp, top = 0.dp, bottom = 4.dp),
