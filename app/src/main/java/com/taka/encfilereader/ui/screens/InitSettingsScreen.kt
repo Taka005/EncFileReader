@@ -1,6 +1,5 @@
-package com.taka.encfilereader.ui.components
+package com.taka.encfilereader.ui.screens
 
-import android.util.Patterns
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,14 +7,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,15 +30,23 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.taka.encfilereader.ui.views.ErrorType
+import com.taka.encfilereader.ui.views.UiState
+import com.taka.encfilereader.ui.views.localContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InitSettingsScreen(
-    onNavigateToGrid: () -> Unit
+    onFinish: () -> Unit
 ) {
+    val viewModel = localContext.current
+    val uiState by viewModel.uiState.collectAsState()
+
     var baseUrl by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    val isBaseUrlError = uiState is UiState.Error && (uiState as UiState.Error).type == ErrorType.BASE_URL
+    val isPasswordError = uiState is UiState.Error && (uiState as UiState.Error).type == ErrorType.PASSWORD
 
     Column(
         modifier = Modifier
@@ -64,7 +75,7 @@ fun InitSettingsScreen(
             onValueChange = { baseUrl = it },
             label = { Text("https://example.com/") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
-            isError = errorMessage != null,
+            isError = isBaseUrlError,
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -87,39 +98,40 @@ fun InitSettingsScreen(
             onValueChange = { password = it },
             label = { Text("パスワードを入力") },
             visualTransformation = PasswordVisualTransformation(),
-            isError = errorMessage != null,
+            isError = isPasswordError,
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(40.dp))
 
-        if (errorMessage != null) {
+        Button(
+            onClick = {
+                viewModel.setInitSettings(baseUrl,password)
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = uiState !is UiState.Loading
+        ) {
+            if (uiState is UiState.Loading) {
+                CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+            } else {
+                Text("完了")
+            }
+        }
+
+        if (uiState is UiState.Error) {
             Text(
-                text = errorMessage!!,
+                text = (uiState as UiState.Error).message,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 8.dp)
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = {
-                if(Patterns.WEB_URL.matcher(baseUrl).matches()){
-                    errorMessage = "URLが正しくありません"
-                }
-
-                if (password == "123") {
-                    onNavigateToGrid()
-                } else {
-                    errorMessage = "パスワードが正しくありません"
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("完了")
+        LaunchedEffect(uiState) {
+            if (uiState is UiState.Success) {
+                onFinish()
+            }
         }
     }
 }

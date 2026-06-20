@@ -15,6 +15,7 @@ kotlinx-serialization-converter = "1.0.0"
 retrofit = "3.0.0"
 coil-compose = "3.5.0"
 navigation-compose = "2.9.8"
+runtime-livedata = "1.11.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -38,7 +39,7 @@ kotlinx-serialization-converter = { group = "com.jakewharton.retrofit", name = "
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil-compose" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation-compose" }
-
+runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtime-livedata" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
