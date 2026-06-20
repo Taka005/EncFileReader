@@ -9,7 +9,7 @@ import javax.crypto.spec.SecretKeySpec
 import kotlin.comparisons.compareBy
 
 class Manifest (val dirName: String){
-    var originalDirName: String? = null;
+    var originalDirName: String? = null
     private var key: SecretKeySpec? = null
     private var files: MutableList<FileMetaData> = mutableListOf()
     val fileCount: Int
@@ -37,7 +37,7 @@ class Manifest (val dirName: String){
         return runCatching {
             val metaData = Json.decodeFromString<ManifestMetaData>(decRawData)
 
-            this.files = metaData.files.toMutableList();
+            this.files = metaData.files.toMutableList()
             this.originalDirName = metaData.originalDirName
 
             this.sortFiles()
