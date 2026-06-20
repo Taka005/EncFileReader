@@ -31,25 +31,50 @@ class MainViewModel: ViewModel() {
             return
         }
 
+        val currentStorage = StorageService(baseUrl)
+
         this.password = password
-        this.storage = StorageService(baseUrl)
-
-        loadManifestList()
-    }
-
-    fun loadManifestList(){
-        val currentStorage = this.storage ?: return
+        this.storage = currentStorage
 
         viewModelScope.launch {
             _uiState.value = UiState.Loading
 
-            val result = currentStorage.downloadManifestList()
+            _uiState.value = loadInitData(currentStorage, password)
+        }
+    }
 
-            result.onSuccess {
-                _uiState.value = UiState.Success
-            }.onFailure { e ->
-                _uiState.value = UiState.Error(e.message ?: "不明なエラーが発生しました",ErrorType.BASE_URL)
+    private suspend fun loadInitData(storage: StorageService, pass: String): UiState {
+        storage.downloadManifestList().getOrElse {
+            return UiState.Error(it.message ?: "", ErrorType.BASE_URL)
+        }
+
+        storage.checkValidPassword(pass).getOrElse {
+            return UiState.Error(it.message ?: "", ErrorType.PASSWORD)
+        }
+
+        return UiState.Success
+    }
+
+    fun loadManifestData(){
+        val currentStorage = storage ?: return
+        val currentPassword = password ?: return
+        val total = currentStorage.manifestCount
+
+        viewModelScope.launch {
+            _uiState.value = UiState.Progress(0, total)
+
+            for (i in 0 until total) {
+                val result = currentStorage.downloadManifestData(currentPassword, i)
+
+                if (result.isFailure) {
+                    _uiState.value = UiState.Error("ダウンロードに失敗しました: ${i+1}番目")
+                    return@launch
+                }
+
+                _uiState.value = UiState.Progress(i + 1, total)
             }
+
+            _uiState.value = UiState.Success
         }
     }
 }
@@ -60,6 +85,7 @@ sealed class UiState {
     object Initial : UiState()
     object Loading : UiState()
     object Success : UiState()
+    data class Progress(val current: Int, val total: Int) : UiState()
     data class Error(
         val message: String,
         val type: ErrorType = ErrorType.NONE

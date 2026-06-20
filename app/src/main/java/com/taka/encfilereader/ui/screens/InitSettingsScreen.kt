@@ -6,10 +6,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -40,6 +44,7 @@ fun InitSettingsScreen(
     onFinish: () -> Unit
 ) {
     val viewModel = localContext.current
+    val focusManager = LocalFocusManager.current
     val uiState by viewModel.uiState.collectAsState()
 
     var baseUrl by remember { mutableStateOf("") }
@@ -51,7 +56,9 @@ fun InitSettingsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .imePadding()
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -107,6 +114,8 @@ fun InitSettingsScreen(
 
         Button(
             onClick = {
+                focusManager.clearFocus()
+
                 viewModel.setInitSettings(baseUrl,password)
             },
             modifier = Modifier.fillMaxWidth(),
@@ -130,6 +139,8 @@ fun InitSettingsScreen(
 
         LaunchedEffect(uiState) {
             if (uiState is UiState.Success) {
+                focusManager.clearFocus()
+
                 onFinish()
             }
         }

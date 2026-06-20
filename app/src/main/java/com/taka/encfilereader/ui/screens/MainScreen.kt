@@ -18,12 +18,19 @@ fun MainScreen(modifier: Modifier = Modifier) {
     ) {
         composable("setting") {
             InitSettingsScreen(onFinish = {
-                navController.navigate("fileList") {
+                navController.navigate("loadManifestList") {
                     popUpTo("setting") { inclusive = true }
                 }
             })
         }
-        composable("fileList") {
+        composable("loadManifestList") {
+            LoadManifestScreen(onFinish = {
+                navController.navigate("manifestList") {
+                    popUpTo("loadManifestList") { inclusive = true }
+                }
+            })
+        }
+        composable("manifestList") {
             ImageGridScreen(columns = 2)
         }
     }

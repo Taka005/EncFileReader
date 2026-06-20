@@ -75,4 +75,18 @@ class StorageService(val baseUrl: String){
 
         return manifest.setBuffer(data,password)
     }
+
+    suspend fun checkValidPassword(password: String): Result<Unit>{
+        val manifest = this.getManifest(0).getOrElse { error ->
+            return Result.failure(error)
+        }
+
+        val copyManifest = Manifest(manifest.dirName)
+
+        val data = this.apiClient.fetchManifest(copyManifest.dirName).getOrElse { error ->
+            return Result.failure(error)
+        }
+
+        return manifest.setBuffer(data,password)
+    }
 }

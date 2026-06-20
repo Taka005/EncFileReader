@@ -90,7 +90,6 @@ class Manifest (val dirName: String){
 
             SecretKeySpec(factory.generateSecret(spec).encoded, "AES")
         }
-
     }
 
     fun sortFiles(){
