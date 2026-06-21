@@ -1,31 +1,29 @@
 package com.taka.encfilereader.ui.components
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
+import com.taka.encfilereader.ui.states.ManifestUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GridItem(
-    imageData: ByteArray?,
-    title: String,
-    fileCount: Int
-) {
+fun GridItem(manifestUiState: ManifestUiState) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -33,19 +31,27 @@ fun GridItem(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ){
         Column{
-            AsyncImage(
-                model = imageData,
+            SubcomposeAsyncImage(
+                model = manifestUiState.imageData,
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(4f/5f),
                 contentScale = ContentScale.Crop,
-                error = ColorPainter(MaterialTheme.colorScheme.surface),
-                placeholder = ColorPainter(MaterialTheme.colorScheme.surface),
+                error = {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
+                        CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                    }
+                },
+                loading = {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
+                        CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                    }
+                },
             )
 
             Text(
-                text = title,
+                text = manifestUiState.title,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 0.dp),
@@ -57,7 +63,7 @@ fun GridItem(
             )
 
             Text(
-                text = "${fileCount}ファイル",
+                text = "${manifestUiState.fileCount}ファイル",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 8.dp, end = 8.dp, top = 0.dp, bottom = 4.dp),

@@ -18,7 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.taka.encfilereader.ui.views.UiState
+import com.taka.encfilereader.ui.states.UiState
 import com.taka.encfilereader.ui.views.localContext
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds

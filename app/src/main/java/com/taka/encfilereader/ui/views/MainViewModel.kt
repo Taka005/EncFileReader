@@ -5,13 +5,21 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.taka.encfilereader.service.StorageService
+import com.taka.encfilereader.ui.states.ErrorType
+import com.taka.encfilereader.ui.states.ManifestUiState
+import com.taka.encfilereader.ui.states.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class MainViewModel: ViewModel() {
     private val _uiState = MutableStateFlow<UiState>(UiState.Initial)
     val uiState: StateFlow<UiState> = _uiState
+
+    private val _manifestUiState = MutableStateFlow<List<ManifestUiState>>(emptyList())
+    val manifestUiState: MutableStateFlow<List<ManifestUiState>> = _manifestUiState
+
     private var password: String? = null
     var storage: StorageService? = null
 
@@ -77,19 +85,24 @@ class MainViewModel: ViewModel() {
             _uiState.value = UiState.Success
         }
     }
-}
 
-enum class ErrorType { NONE, BASE_URL, PASSWORD }
+    fun loadManifestList() {
+        val currentStorage = storage ?: return
 
-sealed class UiState {
-    object Initial : UiState()
-    object Loading : UiState()
-    object Success : UiState()
-    data class Progress(val current: Int, val total: Int) : UiState()
-    data class Error(
-        val message: String,
-        val type: ErrorType = ErrorType.NONE
-    ) : UiState()
+        viewModelScope.launch {
+            val list = (0 until currentStorage.manifestCount).map { i ->
+                val manifest = currentStorage.getManifest(i).getOrNull()
+                val manifestData = currentStorage.getContentData(i, 0, 0).getOrNull()
+
+                ManifestUiState(
+                    title = manifest?.originalDirName ?: "不明",
+                    fileCount = manifest?.fileCount ?: 0,
+                    imageData = manifestData
+                )
+            }
+            _manifestUiState.value = list
+        }
+    }
 }
 
 val localContext = staticCompositionLocalOf<MainViewModel> {

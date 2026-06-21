@@ -34,8 +34,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.taka.encfilereader.ui.views.ErrorType
-import com.taka.encfilereader.ui.views.UiState
+import com.taka.encfilereader.ui.states.ErrorType
+import com.taka.encfilereader.ui.states.UiState
 import com.taka.encfilereader.ui.views.localContext
 
 @OptIn(ExperimentalMaterial3Api::class)
