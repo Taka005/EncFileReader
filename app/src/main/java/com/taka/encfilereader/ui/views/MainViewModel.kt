@@ -10,7 +10,6 @@ import com.taka.encfilereader.ui.states.ManifestUiState
 import com.taka.encfilereader.ui.states.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class MainViewModel: ViewModel() {

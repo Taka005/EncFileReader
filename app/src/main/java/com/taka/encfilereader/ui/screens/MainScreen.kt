@@ -2,9 +2,11 @@ package com.taka.encfilereader.ui.screens
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
@@ -30,7 +32,15 @@ fun MainScreen(modifier: Modifier = Modifier) {
             })
         }
         composable("manifestList") {
-            ManifestListScreen(columns = 2)
+            ManifestListScreen(columns = 2,navController)
+        }
+        composable(
+            "fileList/{index}",
+            arguments = listOf(navArgument("index") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val index = backStackEntry.arguments?.getInt("index") ?: 0
+
+            FileListScreen(index)
         }
     }
 }

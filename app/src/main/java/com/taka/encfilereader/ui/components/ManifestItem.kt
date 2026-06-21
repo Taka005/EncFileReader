@@ -1,5 +1,6 @@
 package com.taka.encfilereader.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -23,11 +24,15 @@ import com.taka.encfilereader.ui.states.ManifestUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GridItem(manifestUiState: ManifestUiState) {
+fun ManifestItem(
+    manifestUiState: ManifestUiState,
+    onClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(3.dp),
+            .padding(3.dp)
+            .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ){
         Column{
