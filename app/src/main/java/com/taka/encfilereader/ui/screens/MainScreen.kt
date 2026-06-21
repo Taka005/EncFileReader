@@ -40,7 +40,18 @@ fun MainScreen(modifier: Modifier = Modifier) {
         ) { backStackEntry ->
             val index = backStackEntry.arguments?.getInt("index") ?: 0
 
-            FileListScreen(index)
+            FileListScreen(2,navController,index)
+        }
+        composable(
+            "reader/{manifestIndex}/{fileIndex}",
+            arguments = listOf(
+                navArgument("manifestIndex") { type = NavType.IntType },
+                navArgument("fileIndex") { type = NavType.IntType },
+            )
+        ) { backStackEntry ->
+            val manifestIndex = backStackEntry.arguments?.getInt("manifestIndex") ?: 0
+            val fileIndex = backStackEntry.arguments?.getInt("fileIndex") ?: 0
+
         }
     }
 }

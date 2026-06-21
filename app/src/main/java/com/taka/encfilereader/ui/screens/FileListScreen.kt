@@ -1,9 +1,61 @@
 package com.taka.encfilereader.ui.screens
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.taka.encfilereader.ui.components.FileItem
+import com.taka.encfilereader.ui.views.localContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FileListScreen(index: Int){
+fun FileListScreen(
+    columns: Int,
+    navController: NavController,
+    index: Int
+){
+    val viewModel = localContext.current
+    val items by viewModel.fileUiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadFileList(index)
+    }
+
+    if (items.isEmpty()) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(48.dp),
+                color = MaterialTheme.colorScheme.primary,
+                strokeWidth = 4.dp
+            )
+        }
+    }else{
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(columns),
+            contentPadding = PaddingValues(3.dp)
+        ) {
+            items(items) { item ->
+                FileItem(
+                    item,
+                    onClick = {
+                        navController.navigate("reader/${index}/${items.indexOf(item)}")
+                    }
+                )
+            }
+        }
+    }
 }

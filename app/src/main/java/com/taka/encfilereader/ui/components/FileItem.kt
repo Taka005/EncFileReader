@@ -20,12 +20,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
-import com.taka.encfilereader.ui.states.ManifestUiState
+import com.taka.encfilereader.ui.states.FileUiState
+import com.taka.encfilereader.util.formatBytes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ManifestItem(
-    manifestUiState: ManifestUiState,
+fun FileItem(
+    fileUiState: FileUiState,
     onClick: () -> Unit
 ) {
     Card(
@@ -37,7 +38,7 @@ fun ManifestItem(
     ){
         Column{
             SubcomposeAsyncImage(
-                model = manifestUiState.imageData,
+                model = fileUiState.imageData,
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -56,7 +57,7 @@ fun ManifestItem(
             )
 
             Text(
-                text = manifestUiState.dirName,
+                text = fileUiState.fileName,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 0.dp),
@@ -68,7 +69,7 @@ fun ManifestItem(
             )
 
             Text(
-                text = "${manifestUiState.fileCount}ファイル",
+                text = "${fileUiState.fileSize.formatBytes()} ${fileUiState.contentCount}ファイル",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 8.dp, end = 8.dp, top = 0.dp, bottom = 4.dp),

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.taka.encfilereader.service.StorageService
 import com.taka.encfilereader.ui.states.ErrorType
+import com.taka.encfilereader.ui.states.FileUiState
 import com.taka.encfilereader.ui.states.ManifestUiState
 import com.taka.encfilereader.ui.states.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +19,9 @@ class MainViewModel: ViewModel() {
 
     private val _manifestUiState = MutableStateFlow<List<ManifestUiState>>(emptyList())
     val manifestUiState: MutableStateFlow<List<ManifestUiState>> = _manifestUiState
+
+    private val _fileUiState = MutableStateFlow<List<FileUiState>>(emptyList())
+    val fileUiState: MutableStateFlow<List<FileUiState>> = _fileUiState
 
     private var password: String? = null
     var storage: StorageService? = null
@@ -86,6 +90,8 @@ class MainViewModel: ViewModel() {
     }
 
     fun loadManifestList() {
+        _manifestUiState.value = emptyList()
+
         val currentStorage = storage ?: return
 
         viewModelScope.launch {
@@ -94,12 +100,37 @@ class MainViewModel: ViewModel() {
                 val manifestData = currentStorage.getContentData(i, 0, 0).getOrNull()
 
                 ManifestUiState(
-                    title = manifest?.originalDirName ?: "不明",
+                    dirName = manifest?.originalDirName ?: "不明",
                     fileCount = manifest?.fileCount ?: 0,
                     imageData = manifestData
                 )
             }
+
             _manifestUiState.value = list
+        }
+    }
+
+    fun loadFileList(manifestIndex: Int) {
+        _fileUiState.value = emptyList()
+
+        val currentStorage = storage ?: return
+
+        val manifest = currentStorage.getManifest(manifestIndex).getOrNull() ?: return
+
+        viewModelScope.launch {
+            val list = (0 until manifest.fileCount).map { i ->
+                val file = manifest.getFileMetaData(i).getOrNull()
+                val imageData = currentStorage.getContentData(manifestIndex, i, 0).getOrNull()
+
+                FileUiState(
+                    fileName = file?.originalFileName ?: "不明",
+                    contentCount = file?.contentCount ?: 0,
+                    fileSize = file?.size ?: 0,
+                    imageData = imageData
+                )
+            }
+
+            _fileUiState.value = list
         }
     }
 }

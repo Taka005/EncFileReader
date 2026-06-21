@@ -8,6 +8,12 @@ data class FileMetaData(
     val originalFileName: String,
     val contents: Array<ContentMetaData>
 ) {
+    val contentCount: Int
+        get() = contents.size
+
+    val size: Int
+        get() = contents.fold(0) { sum, element -> sum + element.size }
+
     fun getContentMetaData(
         index: Int
     ): Result<ContentMetaData>{
