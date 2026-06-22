@@ -8,6 +8,7 @@ import com.taka.encfilereader.service.StorageService
 import com.taka.encfilereader.ui.states.ErrorType
 import com.taka.encfilereader.ui.states.FileUiState
 import com.taka.encfilereader.ui.states.ManifestUiState
+import com.taka.encfilereader.ui.states.ReaderUiState
 import com.taka.encfilereader.ui.states.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,6 +23,9 @@ class MainViewModel: ViewModel() {
 
     private val _fileUiState = MutableStateFlow<List<FileUiState>>(emptyList())
     val fileUiState: MutableStateFlow<List<FileUiState>> = _fileUiState
+
+    private val _readerUiState = MutableStateFlow(ReaderUiState())
+    val readerUiState: MutableStateFlow<ReaderUiState> = _readerUiState
 
     private var password: String? = null
     var storage: StorageService? = null
@@ -131,6 +135,18 @@ class MainViewModel: ViewModel() {
             }
 
             _fileUiState.value = list
+        }
+    }
+
+    fun loadReaderContent(manifestIndex: Int,fileIndex: Int, newPosition: Int = 0){
+        val currentStorage = storage ?: return
+
+        viewModelScope.launch {
+            val after = currentStorage.getContentData(manifestIndex, fileIndex, newPosition + 1).getOrNull()
+            val now = currentStorage.getContentData(manifestIndex, fileIndex, newPosition).getOrNull() ?: _readerUiState.value.now
+            val before = currentStorage.getContentData(manifestIndex, fileIndex, newPosition - 1).getOrNull()
+
+            _readerUiState.value = ReaderUiState(newPosition, after, now, before)
         }
     }
 }

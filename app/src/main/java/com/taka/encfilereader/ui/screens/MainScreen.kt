@@ -52,6 +52,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             val manifestIndex = backStackEntry.arguments?.getInt("manifestIndex") ?: 0
             val fileIndex = backStackEntry.arguments?.getInt("fileIndex") ?: 0
 
+            ContentReaderScreen(manifestIndex,fileIndex)
         }
     }
 }
