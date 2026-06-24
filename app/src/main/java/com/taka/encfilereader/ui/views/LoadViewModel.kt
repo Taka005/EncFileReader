@@ -4,14 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.taka.encfilereader.manager.StorageManager
 import com.taka.encfilereader.ui.states.UiState
-import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-@HiltViewModel
-class LoadViewModel @Inject constructor(
+class LoadViewModel(
     private val manager: StorageManager
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<UiState>(UiState.Initial)

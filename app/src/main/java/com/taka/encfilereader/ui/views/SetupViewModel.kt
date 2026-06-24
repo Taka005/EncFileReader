@@ -7,14 +7,11 @@ import com.taka.encfilereader.manager.StorageManager
 import com.taka.encfilereader.service.StorageService
 import com.taka.encfilereader.ui.states.ErrorType
 import com.taka.encfilereader.ui.states.UiState
-import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-@HiltViewModel
-class SetupViewModel @Inject constructor(
+class SetupViewModel(
     private val manager: StorageManager
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<UiState>(UiState.Initial)

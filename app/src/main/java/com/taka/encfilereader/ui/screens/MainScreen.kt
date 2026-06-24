@@ -2,7 +2,6 @@ package com.taka.encfilereader.ui.screens
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -13,6 +12,7 @@ import com.taka.encfilereader.ui.views.LoadViewModel
 import com.taka.encfilereader.ui.views.ManifestListViewModel
 import com.taka.encfilereader.ui.views.ReaderViewModel
 import com.taka.encfilereader.ui.views.SetupViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
@@ -24,7 +24,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         modifier = modifier
     ) {
         composable("setup") {
-            val viewModel: SetupViewModel = hiltViewModel()
+            val viewModel: SetupViewModel = koinViewModel()
 
             SetupScreen(
                 viewModel,
@@ -36,7 +36,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             )
         }
         composable("load") {
-            val viewModel: LoadViewModel = hiltViewModel()
+            val viewModel: LoadViewModel = koinViewModel()
 
             LoadScreen(
                 viewModel,
@@ -48,7 +48,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             )
         }
         composable("manifestList") {
-            val viewModel: ManifestListViewModel = hiltViewModel()
+            val viewModel: ManifestListViewModel = koinViewModel()
 
             ManifestListScreen(viewModel,columns = 2,navController)
         }
@@ -58,7 +58,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         ) { backStackEntry ->
             val index = backStackEntry.arguments?.getInt("index") ?: 0
 
-            val viewModel: FileListViewModel = hiltViewModel()
+            val viewModel: FileListViewModel = koinViewModel()
 
             FileListScreen(viewModel,2,navController,index)
         }
@@ -72,7 +72,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             val manifestIndex = backStackEntry.arguments?.getInt("manifestIndex") ?: 0
             val fileIndex = backStackEntry.arguments?.getInt("fileIndex") ?: 0
 
-            val viewModel: ReaderViewModel = hiltViewModel()
+            val viewModel: ReaderViewModel = koinViewModel()
 
             ReaderScreen(viewModel,manifestIndex,fileIndex)
         }

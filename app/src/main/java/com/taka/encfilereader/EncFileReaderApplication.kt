@@ -1,7 +1,16 @@
 package com.taka.encfilereader
 
 import android.app.Application
-import dagger.hilt.android.HiltAndroidApp
+import com.taka.encfilereader.di.appModule
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.GlobalContext.startKoin
 
-@HiltAndroidApp
-class EncFileReaderApplication : Application()
+class EncFileReaderApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        startKoin {
+            androidContext(this@EncFileReaderApplication)
+            modules(appModule)
+        }
+    }
+}

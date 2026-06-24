@@ -17,9 +17,7 @@ import androidx.compose.ui.res.stringResource
 import com.taka.encfilereader.R
 import com.taka.encfilereader.ui.screens.MainScreen
 import com.taka.encfilereader.ui.theme.EncFileReaderTheme
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {

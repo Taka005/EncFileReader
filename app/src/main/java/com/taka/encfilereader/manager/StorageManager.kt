@@ -1,11 +1,7 @@
 package com.taka.encfilereader.manager
 
 import com.taka.encfilereader.service.StorageService
-import jakarta.inject.Inject
-import jakarta.inject.Singleton
-
-@Singleton
-class StorageManager @Inject constructor() {
+class StorageManager{
     private var _storage: StorageService? = null
     private var _password: String? = null
 
