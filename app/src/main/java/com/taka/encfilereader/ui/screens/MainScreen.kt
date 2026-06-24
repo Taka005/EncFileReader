@@ -2,11 +2,17 @@ package com.taka.encfilereader.ui.screens
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.taka.encfilereader.ui.views.FileListViewModel
+import com.taka.encfilereader.ui.views.LoadViewModel
+import com.taka.encfilereader.ui.views.ManifestListViewModel
+import com.taka.encfilereader.ui.views.ReaderViewModel
+import com.taka.encfilereader.ui.views.SetupViewModel
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
@@ -14,25 +20,37 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
     NavHost(
         navController = navController,
-        startDestination = "setting",
+        startDestination = "setup",
         modifier = modifier
     ) {
-        composable("setting") {
-            InitSettingsScreen(onFinish = {
-                navController.navigate("loadManifestList") {
-                    popUpTo("setting") { inclusive = true }
+        composable("setup") {
+            val viewModel: SetupViewModel = hiltViewModel()
+
+            SetupScreen(
+                viewModel,
+                onFinish = {
+                    navController.navigate("load") {
+                        popUpTo("setup") { inclusive = true }
+                    }
                 }
-            })
+            )
         }
-        composable("loadManifestList") {
-            LoadManifestScreen(onFinish = {
-                navController.navigate("manifestList") {
-                    popUpTo("loadManifestList") { inclusive = true }
+        composable("load") {
+            val viewModel: LoadViewModel = hiltViewModel()
+
+            LoadScreen(
+                viewModel,
+                onFinish = {
+                    navController.navigate("manifestList") {
+                        popUpTo("load") { inclusive = true }
+                    }
                 }
-            })
+            )
         }
         composable("manifestList") {
-            ManifestListScreen(columns = 2,navController)
+            val viewModel: ManifestListViewModel = hiltViewModel()
+
+            ManifestListScreen(viewModel,columns = 2,navController)
         }
         composable(
             "fileList/{index}",
@@ -40,7 +58,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
         ) { backStackEntry ->
             val index = backStackEntry.arguments?.getInt("index") ?: 0
 
-            FileListScreen(2,navController,index)
+            val viewModel: FileListViewModel = hiltViewModel()
+
+            FileListScreen(viewModel,2,navController,index)
         }
         composable(
             "reader/{manifestIndex}/{fileIndex}",
@@ -52,7 +72,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
             val manifestIndex = backStackEntry.arguments?.getInt("manifestIndex") ?: 0
             val fileIndex = backStackEntry.arguments?.getInt("fileIndex") ?: 0
 
-            ContentReaderScreen(manifestIndex,fileIndex)
+            val viewModel: ReaderViewModel = hiltViewModel()
+
+            ReaderScreen(viewModel,manifestIndex,fileIndex)
         }
     }
 }

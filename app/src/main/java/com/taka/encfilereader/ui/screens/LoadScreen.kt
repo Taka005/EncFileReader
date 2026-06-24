@@ -19,20 +19,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.taka.encfilereader.ui.states.UiState
-import com.taka.encfilereader.ui.views.localContext
+import com.taka.encfilereader.ui.views.LoadViewModel
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoadManifestScreen(
+fun LoadScreen(
+    viewModel: LoadViewModel,
     onFinish: () -> Unit
 ) {
-    val viewModel = localContext.current
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.loadManifestData()
+        viewModel.loadData()
     }
 
     Box(

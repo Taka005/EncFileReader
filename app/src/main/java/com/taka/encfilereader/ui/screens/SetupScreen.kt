@@ -36,14 +36,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.taka.encfilereader.ui.states.ErrorType
 import com.taka.encfilereader.ui.states.UiState
-import com.taka.encfilereader.ui.views.localContext
+import com.taka.encfilereader.ui.views.SetupViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InitSettingsScreen(
+fun SetupScreen(
+    viewModel: SetupViewModel,
     onFinish: () -> Unit
 ) {
-    val viewModel = localContext.current
     val focusManager = LocalFocusManager.current
     val uiState by viewModel.uiState.collectAsState()
 
@@ -116,7 +116,7 @@ fun InitSettingsScreen(
             onClick = {
                 focusManager.clearFocus()
 
-                viewModel.setInitSettings(baseUrl,password)
+                viewModel.setSettings(baseUrl,password)
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = uiState !is UiState.Loading

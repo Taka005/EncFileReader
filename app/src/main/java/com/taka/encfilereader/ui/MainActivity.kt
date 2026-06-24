@@ -13,38 +13,33 @@ import androidx.compose.ui.Modifier
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.res.stringResource
-import com.taka.encfilereader.ui.views.MainViewModel
-import com.taka.encfilereader.ui.views.localContext
 import com.taka.encfilereader.R
 import com.taka.encfilereader.ui.screens.MainScreen
 import com.taka.encfilereader.ui.theme.EncFileReaderTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val mainViewModel = MainViewModel()
-
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            CompositionLocalProvider(localContext provides mainViewModel) {
-                EncFileReaderTheme {
-                    Scaffold(
-                        modifier = Modifier.fillMaxSize(),
-                        topBar = {
-                            CenterAlignedTopAppBar(
-                                title = { Text(stringResource(id = R.string.app_name)) },
-                                colors = TopAppBarDefaults.topAppBarColors(
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                    titleContentColor = MaterialTheme.colorScheme.onPrimary
-                                )
+            EncFileReaderTheme {
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    topBar = {
+                        CenterAlignedTopAppBar(
+                            title = { Text(stringResource(id = R.string.app_name)) },
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                titleContentColor = MaterialTheme.colorScheme.onPrimary
                             )
-                        }
-                    ) { innerPadding ->
-                        MainScreen(modifier = Modifier.padding(innerPadding))
+                        )
                     }
+                ) { innerPadding ->
+                    MainScreen(modifier = Modifier.padding(innerPadding))
                 }
             }
         }

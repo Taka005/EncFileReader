@@ -19,16 +19,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.taka.encfilereader.ui.components.ManifestItem
-import com.taka.encfilereader.ui.views.localContext
+import com.taka.encfilereader.ui.views.ManifestListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManifestListScreen(
+    viewModel: ManifestListViewModel,
     columns: Int,
     navController: NavController
 ){
-    val viewModel = localContext.current
-    val items by viewModel.manifestUiState.collectAsState()
+    val items by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.loadManifestList()

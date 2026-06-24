@@ -1,0 +1,24 @@
+package com.taka.encfilereader.manager
+
+import com.taka.encfilereader.service.StorageService
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
+
+@Singleton
+class StorageManager @Inject constructor() {
+    private var _storage: StorageService? = null
+    private var _password: String? = null
+
+    val storage: StorageService?
+        get() = _storage
+
+    val password: String?
+        get() = _password
+
+    fun setCredentials(baseUrl: String, password: String) {
+        _storage = StorageService(baseUrl)
+        _password = password
+    }
+
+    fun isInitialized(): Boolean = _storage != null && _password != null
+}

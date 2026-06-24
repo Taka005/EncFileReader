@@ -13,16 +13,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.taka.encfilereader.ui.components.Content
-import com.taka.encfilereader.ui.views.localContext
+import com.taka.encfilereader.ui.views.ReaderViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ContentReaderScreen(manifestIndex: Int, fileIndex: Int) {
-    val viewModel = localContext.current
-    val uiState by viewModel.readerUiState.collectAsState()
+fun ReaderScreen(
+    viewModel: ReaderViewModel,
+    manifestIndex: Int,
+    fileIndex: Int
+){
+    val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.loadReaderContent(manifestIndex, fileIndex, 0)
+        viewModel.loadContent(manifestIndex, fileIndex, 0)
     }
 
     val pages = listOfNotNull(uiState.before, uiState.now, uiState.after)
@@ -45,7 +48,7 @@ fun ContentReaderScreen(manifestIndex: Int, fileIndex: Int) {
             }
 
             if (nextPos >= 0) {
-                viewModel.loadReaderContent(manifestIndex, fileIndex, nextPos)
+                viewModel.loadContent(manifestIndex, fileIndex, nextPos)
             }
         }
     }

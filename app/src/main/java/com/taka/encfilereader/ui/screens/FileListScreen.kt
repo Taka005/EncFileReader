@@ -19,17 +19,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.taka.encfilereader.ui.components.FileItem
-import com.taka.encfilereader.ui.views.localContext
+import com.taka.encfilereader.ui.views.FileListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FileListScreen(
+    viewModel: FileListViewModel,
     columns: Int,
     navController: NavController,
     index: Int
 ){
-    val viewModel = localContext.current
-    val items by viewModel.fileUiState.collectAsState()
+    val items by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.loadFileList(index)
