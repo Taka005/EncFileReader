@@ -20,7 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.taka.encfilereader.ui.states.UiState
+import com.taka.encfilereader.ui.states.LoadUiState
 import com.taka.encfilereader.ui.views.LoadViewModel
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
@@ -54,7 +54,7 @@ fun LoadScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if(uiState !is UiState.Error){
+            if(uiState !is LoadUiState.Error){
                 CircularProgressIndicator(
                     modifier = Modifier.size(48.dp),
                     color = MaterialTheme.colorScheme.primary,
@@ -65,30 +65,30 @@ fun LoadScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             when (uiState) {
-                is UiState.Initial -> {
+                is LoadUiState.Initial -> {
                     Text(
                         text = "ダウンロードを待機しています",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                is UiState.Progress -> {
+                is LoadUiState.Progress -> {
                     Text(
-                        text = "${(uiState as UiState.Progress).current} / ${(uiState as UiState.Progress).total}件をダウンロード済み",
+                        text = "${(uiState as LoadUiState.Progress).current} / ${(uiState as LoadUiState.Progress).total}件をダウンロード済み",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                is UiState.Success -> {
+                is LoadUiState.Success -> {
                     Text(
                         text = "ダウンロードが完了しました",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                is UiState.Error -> {
+                is LoadUiState.Error -> {
                     Text(
-                        text = (uiState as UiState.Error).message,
+                        text = (uiState as LoadUiState.Error).message,
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium
                     )
@@ -110,7 +110,7 @@ fun LoadScreen(
     }
 
     LaunchedEffect(uiState) {
-        if (uiState is UiState.Success) {
+        if (uiState is LoadUiState.Success) {
             delay(1000.milliseconds)
 
             onFinish()

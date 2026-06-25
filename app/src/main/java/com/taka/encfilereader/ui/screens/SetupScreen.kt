@@ -35,7 +35,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.taka.encfilereader.ui.states.ErrorType
-import com.taka.encfilereader.ui.states.UiState
+import com.taka.encfilereader.ui.states.SetupUiState
 import com.taka.encfilereader.ui.views.SetupViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,8 +50,8 @@ fun SetupScreen(
     var baseUrl by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    val isBaseUrlError = uiState is UiState.Error && (uiState as UiState.Error).type == ErrorType.BASE_URL
-    val isPasswordError = uiState is UiState.Error && (uiState as UiState.Error).type == ErrorType.PASSWORD
+    val isBaseUrlError = uiState is SetupUiState.Error && (uiState as SetupUiState.Error).type == ErrorType.BASE_URL
+    val isPasswordError = uiState is SetupUiState.Error && (uiState as SetupUiState.Error).type == ErrorType.PASSWORD
 
     Column(
         modifier = Modifier
@@ -119,18 +119,18 @@ fun SetupScreen(
                 viewModel.setSettings(baseUrl,password)
             },
             modifier = Modifier.fillMaxWidth(),
-            enabled = uiState !is UiState.Loading
+            enabled = uiState !is SetupUiState.Loading
         ) {
-            if (uiState is UiState.Loading) {
+            if (uiState is SetupUiState.Loading) {
                 CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
             } else {
                 Text("完了")
             }
         }
 
-        if (uiState is UiState.Error) {
+        if (uiState is SetupUiState.Error) {
             Text(
-                text = (uiState as UiState.Error).message,
+                text = (uiState as SetupUiState.Error).message,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(top = 8.dp)
@@ -138,7 +138,7 @@ fun SetupScreen(
         }
 
         LaunchedEffect(uiState) {
-            if (uiState is UiState.Success) {
+            if (uiState is SetupUiState.Success) {
                 focusManager.clearFocus()
 
                 onFinish()

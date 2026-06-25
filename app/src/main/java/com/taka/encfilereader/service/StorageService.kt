@@ -64,9 +64,13 @@ class StorageService(val baseUrl: String){
     }
 
     suspend fun downloadManifestData(password: String, index: Int): Result<Unit> = withContext(Dispatchers.IO) {
-        val manifest = this@StorageService.getManifest(index).getOrElse { return@withContext Result.failure(it) }
+        val manifest = this@StorageService.getManifest(index).getOrElse { error ->
+            return@withContext Result.failure(error)
+        }
 
-        val data = apiClient.fetchManifest(manifest.dirName).getOrElse { return@withContext Result.failure(it) }
+        val data = apiClient.fetchManifest(manifest.dirName).getOrElse { error ->
+            return@withContext Result.failure(error)
+        }
 
         return@withContext withContext(Dispatchers.Default) {
             manifest.setBuffer(data, password)

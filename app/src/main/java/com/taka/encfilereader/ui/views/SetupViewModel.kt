@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.taka.encfilereader.manager.StorageManager
 import com.taka.encfilereader.ui.states.ErrorType
-import com.taka.encfilereader.ui.states.UiState
+import com.taka.encfilereader.ui.states.SetupUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 class SetupViewModel(
     private val manager: StorageManager
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow<UiState>(UiState.Initial)
+    private val _uiState = MutableStateFlow<SetupUiState>(SetupUiState.Initial)
     val uiState = _uiState.asStateFlow()
 
     fun setSettings(baseUrl: String, password: String) {
@@ -22,26 +22,26 @@ class SetupViewModel(
         }
 
         if (baseUrl.isBlank()) {
-            _uiState.value = UiState.Error("ストレージサーバーのURLを入力してください", ErrorType.BASE_URL)
+            _uiState.value = SetupUiState.Error("ストレージサーバーのURLを入力してください", ErrorType.BASE_URL)
             return
         }
 
         if (!Patterns.WEB_URL.matcher(baseUrl).matches()) {
-            _uiState.value = UiState.Error("無効なURLです", ErrorType.BASE_URL)
+            _uiState.value = SetupUiState.Error("無効なURLです", ErrorType.BASE_URL)
             return
         }
 
         if (password.isBlank()) {
-            _uiState.value = UiState.Error("パスワードを入力してください", ErrorType.PASSWORD)
+            _uiState.value = SetupUiState.Error("パスワードを入力してください", ErrorType.PASSWORD)
             return
         }
 
         viewModelScope.launch {
-            _uiState.value = UiState.Loading
+            _uiState.value = SetupUiState.Loading
 
             manager.setCredentials(baseUrl, password)
 
-            _uiState.value = UiState.Success
+            _uiState.value = SetupUiState.Success
         }
     }
 }

@@ -10,7 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.taka.encfilereader.ui.states.UiState
+import com.taka.encfilereader.ui.states.StartUiState
 import com.taka.encfilereader.ui.views.FileListViewModel
 import com.taka.encfilereader.ui.views.LoadViewModel
 import com.taka.encfilereader.ui.views.ManifestListViewModel
@@ -33,11 +33,11 @@ fun MainScreen(modifier: Modifier = Modifier) {
             val state by viewModel.uiState.collectAsState()
 
             LaunchedEffect(state) {
-                if(state is UiState.Success){
+                if(state is StartUiState.Success){
                     navController.navigate("load") {
                         popUpTo("start") { inclusive = true }
                     }
-                }else if(state is UiState.Error){
+                }else if(state is StartUiState.Error){
                     navController.navigate("setup") {
                         popUpTo("start") { inclusive = true }
                     }
