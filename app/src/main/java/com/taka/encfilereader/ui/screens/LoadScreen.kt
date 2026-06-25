@@ -104,7 +104,6 @@ fun LoadScreen(
                         Text("戻る")
                     }
                 }
-                else -> {}
             }
         }
     }
