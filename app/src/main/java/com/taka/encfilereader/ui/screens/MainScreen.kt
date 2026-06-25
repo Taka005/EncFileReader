@@ -1,17 +1,22 @@
 package com.taka.encfilereader.ui.screens
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.taka.encfilereader.ui.states.UiState
 import com.taka.encfilereader.ui.views.FileListViewModel
 import com.taka.encfilereader.ui.views.LoadViewModel
 import com.taka.encfilereader.ui.views.ManifestListViewModel
 import com.taka.encfilereader.ui.views.ReaderViewModel
 import com.taka.encfilereader.ui.views.SetupViewModel
+import com.taka.encfilereader.ui.views.StartViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -20,9 +25,25 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
     NavHost(
         navController = navController,
-        startDestination = "setup",
+        startDestination = "start",
         modifier = modifier
     ) {
+        composable("start") {
+            val viewModel: StartViewModel = koinViewModel()
+            val state by viewModel.uiState.collectAsState()
+
+            LaunchedEffect(state) {
+                if(state is UiState.Success){
+                    navController.navigate("load") {
+                        popUpTo("start") { inclusive = true }
+                    }
+                }else if(state is UiState.Error){
+                    navController.navigate("setup") {
+                        popUpTo("start") { inclusive = true }
+                    }
+                }
+            }
+        }
         composable("setup") {
             val viewModel: SetupViewModel = koinViewModel()
 

@@ -7,12 +7,14 @@ import com.taka.encfilereader.ui.views.LoadViewModel
 import com.taka.encfilereader.ui.views.ManifestListViewModel
 import com.taka.encfilereader.ui.views.ReaderViewModel
 import com.taka.encfilereader.ui.views.SetupViewModel
+import com.taka.encfilereader.ui.views.StartViewModel
 import org.koin.dsl.module
 
 
 val appModule = module {
-    single { StorageManager() }
+    single { StorageManager(get()) }
 
+    viewModel { StartViewModel(get()) }
     viewModel { SetupViewModel(get()) }
     viewModel { LoadViewModel(get()) }
     viewModel { ManifestListViewModel(get()) }

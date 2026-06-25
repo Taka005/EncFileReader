@@ -1,5 +1,6 @@
 package com.taka.encfilereader.util
 
+import java.text.DecimalFormat
 import kotlin.math.floor
 import kotlin.math.log
 import kotlin.math.pow
@@ -14,5 +15,6 @@ fun Int.formatBytes(): String {
 
     val value = (this / baseSize.pow(unitIndex.toDouble()))
 
-    return "${"%.2g".format(value)}${units[unitIndex]}"
+    val format = DecimalFormat("0.##")
+    return "${format.format(value)} ${units[unitIndex]}"
 }

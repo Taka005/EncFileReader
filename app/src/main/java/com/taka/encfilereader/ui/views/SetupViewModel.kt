@@ -33,12 +33,15 @@ class SetupViewModel(
             return
         }
 
-        manager.setCredentials(baseUrl, password)
-
-        val currentStorage = manager.storage ?: return
-
         viewModelScope.launch {
             _uiState.value = UiState.Loading
+
+            manager.setCredentials(baseUrl, password)
+
+            val currentStorage = manager.storage ?: run {
+                _uiState.value = UiState.Error("ストレージの初期化に失敗しました")
+                return@launch
+            }
 
             _uiState.value = loadInitData(currentStorage, password)
         }
