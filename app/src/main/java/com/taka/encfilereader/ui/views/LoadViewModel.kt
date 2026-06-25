@@ -7,6 +7,7 @@ import com.taka.encfilereader.ui.states.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.Console
 
 class LoadViewModel(
     private val manager: StorageManager
@@ -15,8 +16,15 @@ class LoadViewModel(
     val uiState = _uiState.asStateFlow()
 
     fun loadData() {
-        val currentStorage = manager.storage ?: return
-        val currentPassword = manager.password ?: return
+        val currentStorage = manager.storage ?: run {
+            _uiState.value = UiState.Error("ストレージが初期化されていません")
+            return
+        }
+        val currentPassword = manager.password ?: run {
+            _uiState.value = UiState.Error("パスワードが設定 されていません")
+            return
+        }
+
         val total = currentStorage.manifestCount
 
         viewModelScope.launch {
