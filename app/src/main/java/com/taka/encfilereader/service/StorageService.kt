@@ -73,17 +73,17 @@ class StorageService(val baseUrl: String){
         }
     }
 
-    suspend fun checkValidPassword(password: String): Result<Unit>{
-        val manifest = this.getManifest(0).getOrElse { error ->
-            return Result.failure(error)
+    suspend fun checkValidPassword(password: String): Result<Unit> = withContext(Dispatchers.IO) {
+        val manifest = this@StorageService.getManifest(0).getOrElse { error ->
+            return@withContext Result.failure(error)
         }
 
         val copyManifest = Manifest(manifest.dirName)
 
-        val data = this.apiClient.fetchManifest(copyManifest.dirName).getOrElse { error ->
-            return Result.failure(error)
+        val data = this@StorageService.apiClient.fetchManifest(copyManifest.dirName).getOrElse { error ->
+            return@withContext Result.failure(error)
         }
 
-        return manifest.setBuffer(data,password)
+        return@withContext manifest.setBuffer(data,password)
     }
 }

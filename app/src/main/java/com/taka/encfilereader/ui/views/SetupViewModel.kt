@@ -4,7 +4,6 @@ import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.taka.encfilereader.manager.StorageManager
-import com.taka.encfilereader.service.StorageService
 import com.taka.encfilereader.ui.states.ErrorType
 import com.taka.encfilereader.ui.states.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +17,10 @@ class SetupViewModel(
     val uiState = _uiState.asStateFlow()
 
     fun setSettings(baseUrl: String, password: String) {
+        viewModelScope.launch {
+            manager.resetCredentials()
+        }
+
         if (baseUrl.isBlank()) {
             _uiState.value = UiState.Error("ストレージサーバーのURLを入力してください", ErrorType.BASE_URL)
             return
@@ -38,24 +41,7 @@ class SetupViewModel(
 
             manager.setCredentials(baseUrl, password)
 
-            val currentStorage = manager.storage ?: run {
-                _uiState.value = UiState.Error("ストレージの初期化に失敗しました")
-                return@launch
-            }
-
-            _uiState.value = loadInitData(currentStorage, password)
+            _uiState.value = UiState.Success
         }
-    }
-
-    private suspend fun loadInitData(storage: StorageService, pass: String): UiState {
-        storage.downloadManifestList().getOrElse {
-            return UiState.Error(it.message ?: "", ErrorType.BASE_URL)
-        }
-
-        storage.checkValidPassword(pass).getOrElse {
-            return UiState.Error(it.message ?: "", ErrorType.PASSWORD)
-        }
-
-        return UiState.Success
     }
 }

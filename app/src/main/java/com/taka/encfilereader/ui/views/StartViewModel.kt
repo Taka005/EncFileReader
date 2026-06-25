@@ -21,8 +21,14 @@ class StartViewModel(
     private fun checkAuth() {
         viewModelScope.launch {
             _uiState.value = UiState.Loading
+
             val isAuthenticated = manager.loadCredentials()
-            _uiState.value = if (isAuthenticated) UiState.Success else UiState.Error("未認証")
+
+            _uiState.value = if (isAuthenticated){
+                UiState.Success
+            } else{
+                UiState.Error("未認証")
+            }
         }
     }
 }

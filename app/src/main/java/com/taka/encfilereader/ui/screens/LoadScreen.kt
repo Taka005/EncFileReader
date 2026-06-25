@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -27,7 +29,8 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 fun LoadScreen(
     viewModel: LoadViewModel,
-    onFinish: () -> Unit
+    onFinish: () -> Unit,
+    onError: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -51,32 +54,57 @@ fun LoadScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            CircularProgressIndicator(
-                modifier = Modifier.size(48.dp),
-                color = MaterialTheme.colorScheme.primary,
-                strokeWidth = 4.dp
-            )
+            if(uiState !is UiState.Error){
+                CircularProgressIndicator(
+                    modifier = Modifier.size(48.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = 4.dp
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if(uiState is UiState.Progress) {
-                Text(
-                    text = "${(uiState as UiState.Progress).current} / ${(uiState as UiState.Progress).total}件をダウンロード済み",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }else if(uiState is UiState.Success){
-                Text(
-                    text = "ダウンロードが完了しました",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }else if (uiState is UiState.Error) {
-                Text(
-                    text = (uiState as UiState.Error).message,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyMedium
-                )
+            when (uiState) {
+                is UiState.Initial -> {
+                    Text(
+                        text = "ダウンロードを待機しています",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                is UiState.Progress -> {
+                    Text(
+                        text = "${(uiState as UiState.Progress).current} / ${(uiState as UiState.Progress).total}件をダウンロード済み",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                is UiState.Success -> {
+                    Text(
+                        text = "ダウンロードが完了しました",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                is UiState.Error -> {
+                    Text(
+                        text = (uiState as UiState.Error).message,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = {
+                            onError()
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("戻る")
+                    }
+                }
+                else -> {}
             }
         }
     }

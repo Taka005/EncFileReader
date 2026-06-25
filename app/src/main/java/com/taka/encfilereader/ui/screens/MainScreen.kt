@@ -65,6 +65,11 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     navController.navigate("manifestList") {
                         popUpTo("load") { inclusive = true }
                     }
+                },
+                onError = {
+                    navController.navigate("setup") {
+                        popUpTo("load") { inclusive = true }
+                    }
                 }
             )
         }

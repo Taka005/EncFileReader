@@ -47,4 +47,14 @@ class StorageManager(private val context: Context){
             false
         }
     }
+
+    suspend fun resetCredentials(){
+        context.dataStore.edit { prefs ->
+            prefs.remove(baseUrlKey)
+            prefs.remove(passwordKey)
+        }
+
+        _storage = null
+        _password = null
+    }
 }
