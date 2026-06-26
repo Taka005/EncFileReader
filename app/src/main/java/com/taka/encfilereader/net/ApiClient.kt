@@ -2,12 +2,27 @@ package com.taka.encfilereader.net
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
+import okhttp3.Dispatcher
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import java.util.concurrent.TimeUnit
 
 open class ApiClient(val baseUrl: String){
+    private val dispatcher = Dispatcher().apply {
+        maxRequests = 50
+        maxRequestsPerHost = 20
+    }
+
+    private val okHttpClient = OkHttpClient.Builder()
+        .dispatcher(dispatcher)
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(15, TimeUnit.SECONDS)
+        .build()
+
     private val retrofit = Retrofit.Builder()
         .baseUrl(if (baseUrl.endsWith("/")) baseUrl else "$baseUrl/")
+        .client(okHttpClient)
         .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
         .build()
 

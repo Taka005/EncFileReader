@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.taka.encfilereader.manager.StorageManager
 import com.taka.encfilereader.ui.states.LoadUiState
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -37,21 +39,33 @@ class LoadViewModel(
             }
 
             val total = currentStorage.manifestCount
+            var completedCount = 0
 
             _uiState.value = LoadUiState.Progress(0, total)
 
-            for (i in 0 until total) {
-                val result = currentStorage.downloadManifestData(currentPassword, i)
+            val jobs = (0 until total).map { i ->
+                async {
+                    val result = currentStorage.downloadManifestData(currentPassword, i)
 
-                if (result.isFailure) {
-                    _uiState.value = LoadUiState.Error("ダウンロードに失敗しました")
-                    return@launch
+                    if (result.isSuccess) {
+                        synchronized(this) {
+                            completedCount++
+                        }
+
+                        _uiState.value = LoadUiState.Progress(completedCount, total)
+                    }
+
+                    result
                 }
-
-                _uiState.value = LoadUiState.Progress(i + 1, total)
             }
 
-            _uiState.value = LoadUiState.Success
+            val results = jobs.awaitAll()
+
+            if (results.any { it.isFailure }) {
+                _uiState.value = LoadUiState.Error("ダウンロードに失敗しました")
+            } else {
+                _uiState.value = LoadUiState.Success
+            }
         }
     }
 }
