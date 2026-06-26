@@ -3,6 +3,7 @@ package com.taka.encfilereader.net
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.Dispatcher
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -21,14 +22,20 @@ open class ApiClient(val baseUrl: String){
         .build()
 
     private val retrofit = Retrofit.Builder()
-        .baseUrl(if (baseUrl.endsWith("/")) baseUrl else "$baseUrl/")
+        .baseUrl(parseUrl(baseUrl))
         .client(okHttpClient)
         .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
         .build()
 
     private val apiService = retrofit.create(ApiService::class.java)
 
-    open suspend fun fetchManifestList(): Result<List<String>> {
+    fun parseUrl(url: String): String{
+        val httpUrl = url.toHttpUrlOrNull() ?: throw IllegalArgumentException("不正なURL形式です")
+
+        return httpUrl.newBuilder().query(null).build().toString()
+    }
+
+    suspend fun fetchManifestList(): Result<List<String>> {
         return try {
             val list = apiService.getManifestList()
 
@@ -38,7 +45,7 @@ open class ApiClient(val baseUrl: String){
         }
     }
 
-    open suspend fun fetchManifest(dirName: String): Result<ByteArray> {
+    suspend fun fetchManifest(dirName: String): Result<ByteArray> {
         return try {
             val response = apiService.getManifestData("${dirName}/manifest")
 
@@ -48,7 +55,7 @@ open class ApiClient(val baseUrl: String){
         }
     }
 
-    open suspend fun fetchFile(path: String,start: Int,end: Int): Result<ByteArray> {
+    suspend fun fetchFile(path: String,start: Int,end: Int): Result<ByteArray> {
         return try {
             val response = apiService.getFileData(path,"bytes=${start}-${end}")
 

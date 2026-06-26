@@ -18,11 +18,20 @@ class ReaderViewModel(
         val currentStorage = manager.storage ?: return
 
         viewModelScope.launch {
-            val after = currentStorage.getContentData(manifestIndex, fileIndex, newPosition + 1).getOrNull()
-            val now = currentStorage.getContentData(manifestIndex, fileIndex, newPosition).getOrNull() ?: _uiState.value.now
-            val before = currentStorage.getContentData(manifestIndex, fileIndex, newPosition - 1).getOrNull()
+            val nextAfter = currentStorage.getContentData(manifestIndex, fileIndex, newPosition + 1).getOrNull()
+            val nextNow = currentStorage.getContentData(manifestIndex, fileIndex, newPosition).getOrNull()
+            val nextBefore = currentStorage.getContentData(manifestIndex, fileIndex, newPosition - 1).getOrNull()
 
-            _uiState.value = ReaderUiState(newPosition, after, now, before)
+            val newState = ReaderUiState(
+                position = newPosition,
+                after = nextAfter ?: _uiState.value.after,
+                now = nextNow ?: _uiState.value.now,
+                before = nextBefore ?: _uiState.value.before
+            )
+
+            if (newState != _uiState.value) {
+                _uiState.value = newState
+            }
         }
     }
 }
