@@ -28,7 +28,7 @@ class FileListViewModel(
             val deferredList = (0 until manifest.fileCount).map { i ->
                 async {
                     val file = manifest.getFileMetaData(i).getOrNull()
-                    val imageData = currentStorage.getContentData(manifestIndex, i, 0).getOrNull()
+                    val imageData = manager.getContentData(manifestIndex, i, 0).getOrNull()
 
                     FileUiState(
                         fileName = file?.originalFileName ?: "不明",

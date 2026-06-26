@@ -26,7 +26,7 @@ class ManifestListViewModel(
             val deferredList = (0 until currentStorage.manifestCount).map { i ->
                 async {
                     val manifest = currentStorage.getManifest(i).getOrNull()
-                    val manifestData = currentStorage.getContentData(i, 0, 0).getOrNull()
+                    val manifestData = manager.getContentData(i, 0, 0).getOrNull()
 
                     ManifestUiState(
                         dirName = manifest?.originalDirName ?: "不明",

@@ -5,16 +5,22 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.taka.encfilereader.service.StorageService
 import androidx.datastore.preferences.preferencesDataStore
+import com.taka.encfilereader.service.ContentCacheService
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 private val Context.dataStore by preferencesDataStore(name = "settings")
 
 class StorageManager(private val context: Context){
     private val baseUrlKey = stringPreferencesKey("base_url")
     private val passwordKey = stringPreferencesKey("password")
-
     private var _storage: StorageService? = null
     private var _password: String? = null
+    private val cacheService = ContentCacheService(context.cacheDir)
+    private val lock = Mutex()
 
     val storage: StorageService?
         get() = _storage
@@ -56,5 +62,31 @@ class StorageManager(private val context: Context){
 
         _storage = null
         _password = null
+    }
+
+    suspend fun getContentData(
+        manifestIndex: Int,
+        fileIndex: Int,
+        contentIndex: Int
+    ): Result<ByteArray> = withContext(Dispatchers.IO) {
+        val currentStorage = storage ?: return@withContext Result.failure(Exception("ストレージが初期化されていません"))
+
+        val cacheKey = "${manifestIndex}_${fileIndex}_${contentIndex}"
+
+        val cachedData = cacheService.get(cacheKey)
+
+        if (cachedData != null) {
+            return@withContext Result.success(cachedData)
+        }
+
+        lock.withLock {
+            val data = currentStorage.getContentData(manifestIndex, fileIndex, contentIndex).getOrElse { error ->
+                return@withContext Result.failure(error)
+            }
+
+            cacheService.save(cacheKey, data)
+
+            return@withContext Result.success(data)
+        }
     }
 }

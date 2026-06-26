@@ -18,9 +18,9 @@ class ReaderViewModel(
         val currentStorage = manager.storage ?: return
 
         viewModelScope.launch {
-            val nextAfter = currentStorage.getContentData(manifestIndex, fileIndex, newPosition + 1).getOrNull()
-            val nextNow = currentStorage.getContentData(manifestIndex, fileIndex, newPosition).getOrNull()
-            val nextBefore = currentStorage.getContentData(manifestIndex, fileIndex, newPosition - 1).getOrNull()
+            val nextAfter = manager.getContentData(manifestIndex, fileIndex, newPosition + 1).getOrNull()
+            val nextNow = manager.getContentData(manifestIndex, fileIndex, newPosition).getOrNull()
+            val nextBefore = manager.getContentData(manifestIndex, fileIndex, newPosition - 1).getOrNull()
 
             val newState = ReaderUiState(
                 position = newPosition,
