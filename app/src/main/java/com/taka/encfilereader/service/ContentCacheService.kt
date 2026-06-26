@@ -38,7 +38,7 @@ class ContentCacheService(cacheDir: File){
             }?.also {
                 memoryCache.put(hashedKey, it)
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
