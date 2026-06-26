@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.taka.encfilereader.manager.StorageManager
 import com.taka.encfilereader.ui.states.ManifestUiState
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -21,18 +23,20 @@ class ManifestListViewModel(
         val currentStorage = manager.storage ?: return
 
         viewModelScope.launch {
-            val list = (0 until currentStorage.manifestCount).map { i ->
-                val manifest = currentStorage.getManifest(i).getOrNull()
-                val manifestData = currentStorage.getContentData(i, 0, 0).getOrNull()
+            val deferredList = (0 until currentStorage.manifestCount).map { i ->
+                async {
+                    val manifest = currentStorage.getManifest(i).getOrNull()
+                    val manifestData = currentStorage.getContentData(i, 0, 0).getOrNull()
 
-                ManifestUiState(
-                    dirName = manifest?.originalDirName ?: "不明",
-                    fileCount = manifest?.fileCount ?: 0,
-                    imageData = manifestData
-                )
+                    ManifestUiState(
+                        dirName = manifest?.originalDirName ?: "不明",
+                        fileCount = manifest?.fileCount ?: 0,
+                        imageData = manifestData
+                    )
+                }
             }
 
-            _uiState.value = list
+            _uiState.value = deferredList.awaitAll()
         }
     }
 }
