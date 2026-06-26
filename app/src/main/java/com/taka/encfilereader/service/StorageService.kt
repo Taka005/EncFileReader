@@ -1,5 +1,6 @@
 package com.taka.encfilereader.service
 
+import android.util.LruCache
 import com.taka.encfilereader.model.Manifest
 import com.taka.encfilereader.net.ApiClient
 import kotlinx.coroutines.Dispatchers
@@ -9,6 +10,12 @@ class StorageService(val baseUrl: String){
     private val manifests: MutableList<Manifest> = mutableListOf()
 
     private val apiClient = ApiClient(this.baseUrl)
+
+    private val memoryCache = object : LruCache<String, ByteArray>(50 * 1024 * 1024) {
+        override fun sizeOf(key: String, value: ByteArray): Int {
+            return value.size
+        }
+    }
 
     val manifestCount: Int
         get() = this.manifests.size
@@ -38,12 +45,24 @@ class StorageService(val baseUrl: String){
             return@withContext Result.failure(it)
         }
 
-        val path = "${manifest.dirName}/${fileData.fileName}"
-        val data = apiClient.fetchFile(path, contentMetaData.start, contentMetaData.end)
-            .getOrElse { return@withContext Result.failure(it) }
+        val cacheKey = "${manifestIndex}_${fileIndex}_${contentIndex}"
 
-        return@withContext withContext(Dispatchers.Default) {
+        memoryCache.get(cacheKey)?.let {
+            return@withContext Result.success(it)
+        }
+
+        val path = "${manifest.dirName}/${fileData.fileName}"
+
+        val data = apiClient.fetchFile(path, contentMetaData.start, contentMetaData.end).getOrElse {
+            return@withContext Result.failure(it)
+        }
+
+        val decryptedResult = withContext(Dispatchers.Default) {
             manifest.getContentData(data, contentMetaData)
+        }
+
+        return@withContext decryptedResult.onSuccess { decrypted ->
+            memoryCache.put(cacheKey, decrypted)
         }
     }
 
@@ -89,5 +108,9 @@ class StorageService(val baseUrl: String){
         }
 
         return@withContext manifest.setBuffer(data,password)
+    }
+
+    fun clearCache() {
+        memoryCache.evictAll()
     }
 }
