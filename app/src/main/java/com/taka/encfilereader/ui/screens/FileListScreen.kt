@@ -1,5 +1,6 @@
 package com.taka.encfilereader.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import com.taka.encfilereader.ui.components.FileItem
 import com.taka.encfilereader.ui.views.FileListViewModel
@@ -36,7 +38,11 @@ fun FileListScreen(
     }
 
     if (items.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+
+        ) {
             CircularProgressIndicator(
                 modifier = Modifier.size(48.dp),
                 color = MaterialTheme.colorScheme.primary,
@@ -52,7 +58,9 @@ fun FileListScreen(
                 FileItem(
                     item,
                     onClick = {
-                        navController.navigate("reader/${index}/${items.indexOf(item)}")
+                        if (navController.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
+                            navController.navigate("reader/${index}/${items.indexOf(item)}")
+                        }
                     }
                 )
             }

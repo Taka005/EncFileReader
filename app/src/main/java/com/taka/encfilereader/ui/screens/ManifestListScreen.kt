@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import com.taka.encfilereader.ui.components.ManifestItem
 import com.taka.encfilereader.ui.views.ManifestListViewModel
@@ -35,7 +36,10 @@ fun ManifestListScreen(
     }
 
     if (items.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
             CircularProgressIndicator(
                 modifier = Modifier.size(48.dp),
                 color = MaterialTheme.colorScheme.primary,
@@ -51,7 +55,9 @@ fun ManifestListScreen(
                 ManifestItem(
                     item,
                     onClick = {
-                        navController.navigate("fileList/${items.indexOf(item)}")
+                        if (navController.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
+                            navController.navigate("fileList/${items.indexOf(item)}")
+                        }
                     }
                 )
             }
