@@ -2,7 +2,6 @@ package com.taka.encfilereader.ui.views
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.taka.encfilereader.R
 import com.taka.encfilereader.manager.StorageManager
 import com.taka.encfilereader.ui.states.FileUiState
 import kotlinx.coroutines.async

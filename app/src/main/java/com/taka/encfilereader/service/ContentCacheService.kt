@@ -5,13 +5,8 @@ import com.jakewharton.disklrucache.DiskLruCache
 import java.io.File
 import java.security.MessageDigest
 
-class ContentCacheService(cacheDir: File){
-    private val diskCache = DiskLruCache.open(
-        File(cacheDir, "content_cache"),
-        1,
-        1,
-        100 * 1024 * 1024
-    )
+class ContentCacheService(private val cacheDir: File){
+    private var diskCache = openDiskCache()
 
     private val memoryCache = object : LruCache<String, ByteArray>(50 * 1024 * 1024) {
         override fun sizeOf(key: String, value: ByteArray): Int {
@@ -24,6 +19,13 @@ class ContentCacheService(cacheDir: File){
 
     val memoryCacheSize: Int
         get() = memoryCache.size()
+
+    private fun openDiskCache(): DiskLruCache {
+        return DiskLruCache.open(
+            File(cacheDir, "content_cache"),
+            1, 1, 100 * 1024 * 1024
+        )
+    }
 
     private fun hashKey(key: String): String {
         val digest = MessageDigest.getInstance("MD5")
@@ -67,6 +69,21 @@ class ContentCacheService(cacheDir: File){
                 commit()
             }
             diskCache.flush()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    @Synchronized
+    fun clearAll() {
+        try {
+            diskCache.close()
+
+            memoryCache.evictAll()
+
+            diskCache.delete()
+
+            diskCache = openDiskCache()
         } catch (e: Exception) {
             e.printStackTrace()
         }

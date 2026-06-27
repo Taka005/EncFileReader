@@ -19,8 +19,8 @@ class StorageManager(private val context: Context){
     private val passwordKey = stringPreferencesKey("password")
     private var _storage: StorageService? = null
     private var _password: String? = null
-    private val cacheService = ContentCacheService(context.cacheDir)
     private val lock = Mutex()
+    val cacheService = ContentCacheService(context.cacheDir)
 
     val storage: StorageService?
         get() = _storage

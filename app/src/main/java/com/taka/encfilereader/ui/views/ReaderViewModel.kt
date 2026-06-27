@@ -1,10 +1,8 @@
 package com.taka.encfilereader.ui.views
 
-import androidx.collection.floatIntMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.taka.encfilereader.manager.StorageManager
-import com.taka.encfilereader.ui.states.LoadUiState
 import com.taka.encfilereader.ui.states.ReaderUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

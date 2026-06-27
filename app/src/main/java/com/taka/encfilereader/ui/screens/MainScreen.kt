@@ -25,6 +25,7 @@ import com.taka.encfilereader.ui.views.FileListViewModel
 import com.taka.encfilereader.ui.views.LoadViewModel
 import com.taka.encfilereader.ui.views.ManifestListViewModel
 import com.taka.encfilereader.ui.views.ReaderViewModel
+import com.taka.encfilereader.ui.views.SettingViewModel
 import com.taka.encfilereader.ui.views.SetupViewModel
 import com.taka.encfilereader.ui.views.StartViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -54,7 +55,11 @@ fun MainScreen(modifier: Modifier = Modifier) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
-            TopAppBar(currentRoute,screenTitle ?: "")
+            TopAppBar(
+                navController,
+                currentRoute,
+                screenTitle ?: ""
+            )
         }
     ) { innerPadding ->
         NavHost(
@@ -104,6 +109,16 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         navController.navigate("setup") {
                             popUpTo("load") { inclusive = true }
                         }
+                    }
+                )
+            }
+            composable("setting") {
+                val viewModel: SettingViewModel = koinViewModel()
+
+                SettingScreen(
+                    viewModel,
+                    onFinish = {
+                        navController.popBackStack()
                     }
                 )
             }

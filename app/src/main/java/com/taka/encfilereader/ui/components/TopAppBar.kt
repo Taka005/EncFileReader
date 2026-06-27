@@ -3,6 +3,7 @@ package com.taka.encfilereader.ui.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -21,10 +22,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
+import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar(
+    navController: NavController,
     currentRoute: String?,
     title: String
 ){
@@ -33,22 +37,45 @@ fun TopAppBar(
     CenterAlignedTopAppBar(
         title = { Text(title) },
         navigationIcon = {
-            if(currentRoute != "setup"&&currentRoute != "load"){
+            if(currentRoute == "setting"){
                 IconButton(
-                    onClick = {}
+                    onClick = {
+                        navController.popBackStack()
+                    }
+                ){
+                    Icon(
+                        imageVector = Icons.Default.ArrowBackIosNew,
+                        contentDescription = null
+                    )
+                }
+            }else if(
+                currentRoute != "setup"&&
+                currentRoute != "load"
+            ){
+                IconButton(
+                    onClick = {
+
+                    }
                 ){
                     Icon(
                         imageVector = Icons.Default.Menu,
-                        contentDescription = "Menu"
+                        contentDescription = null
                     )
                 }
             }
         },
         actions = {
-            if(currentRoute != "setup"&&currentRoute != "load") {
+            if(
+                currentRoute != "setup"&&
+                currentRoute != "load"&&
+                currentRoute != "setting"
+            ) {
                 Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
                     IconButton(onClick = { isShowMenu = !isShowMenu }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "More")
+                        Icon(
+                            Icons.Default.MoreVert,
+                            contentDescription = null
+                        )
                     }
 
                     DropdownMenu(
@@ -57,11 +84,13 @@ fun TopAppBar(
                     ) {
                         DropdownMenuItem(
                             text = { Text("設定") },
-                            onClick = { isShowMenu = false }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("キャッシュ削除") },
-                            onClick = { isShowMenu = false }
+                            onClick = {
+                                isShowMenu = false
+
+                                if (navController.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
+                                    navController.navigate("setting")
+                                }
+                            }
                         )
                     }
                 }
