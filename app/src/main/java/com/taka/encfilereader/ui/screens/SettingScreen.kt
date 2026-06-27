@@ -22,10 +22,9 @@ import com.taka.encfilereader.util.formatBytes
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingScreen(
-    viewModel: SettingViewModel,
-    onFinish: () -> Unit
+    viewModel: SettingViewModel
 ){
-    val cacheSize by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.loadData()
@@ -38,7 +37,12 @@ fun SettingScreen(
 
         ListItem(
             headlineContent = { Text("キャッシュサイズ") },
-            supportingContent = { Text("メモリ: ${cacheSize.memoryCacheSize.formatBytes()} ディスク: ${cacheSize.diskCacheSize.formatBytes()}") },
+            supportingContent = {
+                Column {
+                    Text("メモリ: ${uiState.memoryCacheSize.formatBytes()}/${uiState.defaultMemoryCache.formatBytes()}")
+                    Text("ディスク: ${uiState.diskCacheSize.formatBytes()}/${uiState.defaultDiskCache.formatBytes()}")
+                }
+            },
             trailingContent = {
                 Button(
                     onClick = {

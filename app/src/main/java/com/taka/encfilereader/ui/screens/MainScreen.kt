@@ -46,7 +46,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
             currentRoute == "start" ||
             currentRoute == "setup" ||
             currentRoute == "load"  ||
-            currentRoute == "manifestList"
+            currentRoute == "manifestList"||
+            currentRoute == "setting"
         ) {
             screenTitle = defaultTitle
         }
@@ -115,12 +116,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             composable("setting") {
                 val viewModel: SettingViewModel = koinViewModel()
 
-                SettingScreen(
-                    viewModel,
-                    onFinish = {
-                        navController.popBackStack()
-                    }
-                )
+                SettingScreen(viewModel)
             }
             composable("manifestList") {
                 val viewModel: ManifestListViewModel = koinViewModel()

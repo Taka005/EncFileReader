@@ -6,9 +6,12 @@ import java.io.File
 import java.security.MessageDigest
 
 class ContentCacheService(private val cacheDir: File){
+    val defaultMemoryCache = 50 * 1024 * 1024
+    val defaultDiskCache = 100 * 1024 * 1024
+
     private var diskCache = openDiskCache()
 
-    private val memoryCache = object : LruCache<String, ByteArray>(50 * 1024 * 1024) {
+    private val memoryCache = object : LruCache<String, ByteArray>(defaultMemoryCache) {
         override fun sizeOf(key: String, value: ByteArray): Int {
             return value.size
         }
@@ -23,7 +26,9 @@ class ContentCacheService(private val cacheDir: File){
     private fun openDiskCache(): DiskLruCache {
         return DiskLruCache.open(
             File(cacheDir, "content_cache"),
-            1, 1, 100 * 1024 * 1024
+            1,
+            1,
+            defaultDiskCache.toLong()
         )
     }
 

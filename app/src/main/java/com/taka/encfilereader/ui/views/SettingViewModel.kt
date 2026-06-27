@@ -14,6 +14,8 @@ class SettingViewModel(
 
     fun loadData(){
         _uiState.value = SettingUiState(
+            defaultDiskCache = manager.cacheService.defaultDiskCache,
+            defaultMemoryCache = manager.cacheService.defaultMemoryCache,
             diskCacheSize = manager.cacheService.diskCacheSize,
             memoryCacheSize = manager.cacheService.memoryCacheSize
         )
