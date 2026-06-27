@@ -21,17 +21,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import com.taka.encfilereader.R
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBar(currentRoute: String?){
+fun TopAppBar(
+    currentRoute: String?,
+    title: String
+){
     var isShowMenu by remember { mutableStateOf(false) }
 
     CenterAlignedTopAppBar(
-        title = { Text(stringResource(id = R.string.app_name)) },
+        title = { Text(title) },
         navigationIcon = {
             if(currentRoute != "setup"&&currentRoute != "load"){
                 IconButton(

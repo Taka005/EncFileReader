@@ -19,11 +19,11 @@ class ContentCacheService(cacheDir: File){
         }
     }
 
-    val diskCacheSize: Long
-        get() = diskCache.size()
+    val diskCacheSize: Int
+        get() = diskCache.size().toInt()
 
-    val memoryCacheSize: Long
-        get() = memoryCache.size().toLong()
+    val memoryCacheSize: Int
+        get() = memoryCache.size()
 
     private fun hashKey(key: String): String {
         val digest = MessageDigest.getInstance("MD5")

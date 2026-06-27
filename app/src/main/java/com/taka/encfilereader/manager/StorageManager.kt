@@ -5,7 +5,6 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.taka.encfilereader.service.StorageService
 import androidx.datastore.preferences.preferencesDataStore
-import coil3.disk.DiskCache
 import com.taka.encfilereader.service.ContentCacheService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first

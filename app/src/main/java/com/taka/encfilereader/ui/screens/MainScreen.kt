@@ -7,13 +7,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.taka.encfilereader.R
 import com.taka.encfilereader.ui.components.TopAppBar
 import com.taka.encfilereader.ui.states.StartUiState
 import com.taka.encfilereader.ui.views.FileListViewModel
@@ -31,10 +36,25 @@ fun MainScreen(modifier: Modifier = Modifier) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    val defaultTitle = stringResource(id = R.string.app_name)
+
+    var screenTitle: String? by remember { mutableStateOf(null) }
+
+    LaunchedEffect(currentRoute) {
+        if (
+            currentRoute == "start" ||
+            currentRoute == "setup" ||
+            currentRoute == "load"  ||
+            currentRoute == "manifestList"
+        ) {
+            screenTitle = defaultTitle
+        }
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
-            TopAppBar(currentRoute)
+            TopAppBar(currentRoute,screenTitle ?: "")
         }
     ) { innerPadding ->
         NavHost(
@@ -99,6 +119,11 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 val index = backStackEntry.arguments?.getInt("index") ?: 0
 
                 val viewModel: FileListViewModel = koinViewModel()
+                val title by viewModel.title.collectAsState()
+
+                LaunchedEffect(title) {
+                    screenTitle = title
+                }
 
                 FileListScreen(viewModel, 2, navController, index)
             }
@@ -113,6 +138,11 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 val fileIndex = backStackEntry.arguments?.getInt("fileIndex") ?: 0
 
                 val viewModel: ReaderViewModel = koinViewModel()
+                val title by viewModel.title.collectAsState()
+
+                LaunchedEffect(title) {
+                    screenTitle = title
+                }
 
                 ReaderScreen(viewModel, manifestIndex, fileIndex)
             }

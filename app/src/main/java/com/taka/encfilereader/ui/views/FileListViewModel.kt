@@ -2,6 +2,7 @@ package com.taka.encfilereader.ui.views
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.taka.encfilereader.R
 import com.taka.encfilereader.manager.StorageManager
 import com.taka.encfilereader.ui.states.FileUiState
 import kotlinx.coroutines.async
@@ -17,12 +18,17 @@ class FileListViewModel(
     private val _uiState = MutableStateFlow<List<FileUiState>>(emptyList())
     val uiState = _uiState.asStateFlow()
 
+    private val _title: MutableStateFlow<String?> = MutableStateFlow(null)
+    val title = _title.asStateFlow()
+
     fun loadFileList(manifestIndex: Int) {
         _uiState.value = emptyList()
 
         val currentStorage = manager.storage ?: return
 
         val manifest = currentStorage.getManifest(manifestIndex).getOrNull() ?: return
+
+        _title.value = manifest.originalDirName
 
         viewModelScope.launch {
             val deferredList = (0 until manifest.fileCount).map { i ->
