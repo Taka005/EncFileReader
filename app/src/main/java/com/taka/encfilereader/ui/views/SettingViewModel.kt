@@ -1,10 +1,12 @@
 package com.taka.encfilereader.ui.views
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.taka.encfilereader.manager.StorageManager
 import com.taka.encfilereader.ui.states.SettingUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class SettingViewModel(
     private val manager: StorageManager
@@ -22,8 +24,11 @@ class SettingViewModel(
         )
     }
 
-    fun setColumns(columns: Int){
-        manager.displayColumns = columns
+     fun setColumns(columns: Int){
+        viewModelScope.launch {
+            manager.updateDisplayColumns(columns)
+        }
+
         loadData()
     }
 

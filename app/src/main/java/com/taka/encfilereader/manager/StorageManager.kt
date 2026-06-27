@@ -20,7 +20,7 @@ class StorageManager(private val context: Context){
     private val displayColumnsKey = stringPreferencesKey("displayColumnsKey")
     private var _storage: StorageService? = null
     private var _password: String? = null
-    var displayColumns: Int = 2
+    private var _displayColumns: Int = 2
     private val lock = Mutex()
     val cacheService = ContentCacheService(context.cacheDir)
 
@@ -29,6 +29,19 @@ class StorageManager(private val context: Context){
 
     val password: String?
         get() = _password
+
+    val displayColumns: Int
+        get() = _displayColumns
+
+    suspend fun updateDisplayColumns(value: Int) {
+        if (value <= 0) return
+
+        _displayColumns = value
+
+        context.dataStore.edit { prefs ->
+            prefs[displayColumnsKey] = value.toString()
+        }
+    }
 
     suspend fun setCredentials(baseUrl: String, password: String) {
         context.dataStore.edit { prefs ->
@@ -46,7 +59,7 @@ class StorageManager(private val context: Context){
         val baseUrl = prefs[baseUrlKey]
         val password = prefs[passwordKey]
 
-        displayColumns = prefs[displayColumnsKey]?.toInt() ?: 2
+        updateDisplayColumns(prefs[displayColumnsKey]?.toInt() ?: 2)
 
         return if (
             baseUrl != null &&
@@ -70,7 +83,7 @@ class StorageManager(private val context: Context){
 
         _storage = null
         _password = null
-        displayColumns = 2
+        updateDisplayColumns(2)
     }
 
     suspend fun getContentData(
