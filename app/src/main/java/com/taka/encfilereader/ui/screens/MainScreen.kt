@@ -19,6 +19,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.taka.encfilereader.R
+import com.taka.encfilereader.manager.StorageManager
 import com.taka.encfilereader.ui.components.TopAppBar
 import com.taka.encfilereader.ui.states.StartUiState
 import com.taka.encfilereader.ui.views.FileListViewModel
@@ -29,9 +30,12 @@ import com.taka.encfilereader.ui.views.SettingViewModel
 import com.taka.encfilereader.ui.views.SetupViewModel
 import com.taka.encfilereader.ui.views.StartViewModel
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
+    val storageManager: StorageManager = koinInject()
+
     val navController = rememberNavController()
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -121,7 +125,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             composable("manifestList") {
                 val viewModel: ManifestListViewModel = koinViewModel()
 
-                ManifestListScreen(viewModel, columns = 2, navController)
+                ManifestListScreen(viewModel, columns = storageManager.displayColumns, navController)
             }
             composable(
                 "fileList/{index}",
@@ -136,7 +140,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     screenTitle = title
                 }
 
-                FileListScreen(viewModel, 2, navController, index)
+                FileListScreen(viewModel, storageManager.displayColumns, navController, index)
             }
             composable(
                 "reader/{manifestIndex}/{fileIndex}",

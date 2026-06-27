@@ -16,6 +16,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.taka.encfilereader.ui.components.ColumnSelectDropdown
 import com.taka.encfilereader.ui.views.SettingViewModel
 import com.taka.encfilereader.util.formatBytes
 
@@ -51,6 +52,24 @@ fun SettingScreen(
                 ){
                     Text("クリア")
                 }
+            }
+        )
+
+        HorizontalDivider()
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text("表示設定", style = MaterialTheme.typography.titleLarge)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        ListItem(
+            headlineContent = { Text("カラム表示数") },
+            trailingContent = {
+                ColumnSelectDropdown(
+                    currentValue = uiState.displayColumns,
+                    onValueSelected = { viewModel.setColumns(it) }
+                )
             }
         )
 

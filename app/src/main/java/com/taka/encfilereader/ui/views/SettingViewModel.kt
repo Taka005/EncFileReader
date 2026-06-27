@@ -17,8 +17,14 @@ class SettingViewModel(
             defaultDiskCache = manager.cacheService.defaultDiskCache,
             defaultMemoryCache = manager.cacheService.defaultMemoryCache,
             diskCacheSize = manager.cacheService.diskCacheSize,
-            memoryCacheSize = manager.cacheService.memoryCacheSize
+            memoryCacheSize = manager.cacheService.memoryCacheSize,
+            displayColumns = manager.displayColumns
         )
+    }
+
+    fun setColumns(columns: Int){
+        manager.displayColumns = columns
+        loadData()
     }
 
     fun clearCache(){

@@ -17,8 +17,10 @@ private val Context.dataStore by preferencesDataStore(name = "settings")
 class StorageManager(private val context: Context){
     private val baseUrlKey = stringPreferencesKey("base_url")
     private val passwordKey = stringPreferencesKey("password")
+    private val displayColumnsKey = stringPreferencesKey("displayColumnsKey")
     private var _storage: StorageService? = null
     private var _password: String? = null
+    var displayColumns: Int = 2
     private val lock = Mutex()
     val cacheService = ContentCacheService(context.cacheDir)
 
@@ -44,7 +46,12 @@ class StorageManager(private val context: Context){
         val baseUrl = prefs[baseUrlKey]
         val password = prefs[passwordKey]
 
-        return if (baseUrl != null && password != null) {
+        displayColumns = prefs[displayColumnsKey]?.toInt() ?: 2
+
+        return if (
+            baseUrl != null &&
+            password != null
+        ) {
             _storage = StorageService(baseUrl)
             _password = password
 
@@ -58,10 +65,12 @@ class StorageManager(private val context: Context){
         context.dataStore.edit { prefs ->
             prefs.remove(baseUrlKey)
             prefs.remove(passwordKey)
+            prefs.remove(displayColumnsKey)
         }
 
         _storage = null
         _password = null
+        displayColumns = 2
     }
 
     suspend fun getContentData(
