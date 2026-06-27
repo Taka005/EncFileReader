@@ -4,12 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.compose.material3.ExperimentalMaterial3Api
-import com.taka.encfilereader.ui.components.TopAppBar
 import com.taka.encfilereader.ui.screens.MainScreen
 import com.taka.encfilereader.ui.theme.EncFileReaderTheme
 
@@ -20,12 +16,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             EncFileReaderTheme {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    topBar = { TopAppBar() }
-                ) { innerPadding ->
-                    MainScreen(modifier = Modifier.padding(innerPadding))
-                }
+                MainScreen(modifier = Modifier)
             }
         }
     }

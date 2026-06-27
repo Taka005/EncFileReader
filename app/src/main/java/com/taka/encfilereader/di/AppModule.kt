@@ -9,10 +9,14 @@ import com.taka.encfilereader.ui.views.ReaderViewModel
 import com.taka.encfilereader.ui.views.SetupViewModel
 import com.taka.encfilereader.ui.views.StartViewModel
 import org.koin.dsl.module
-
+import org.koin.dsl.onClose
 
 val appModule = module {
-    single { StorageManager(get()) }
+    single {
+        StorageManager(get())
+    }onClose{ manager ->
+        manager?.close()
+    }
 
     viewModel { StartViewModel(get()) }
     viewModel { SetupViewModel(get()) }

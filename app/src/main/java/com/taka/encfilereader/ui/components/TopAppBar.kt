@@ -27,39 +27,43 @@ import com.taka.encfilereader.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBar(){
-    var showMenu by remember { mutableStateOf(false) }
+fun TopAppBar(currentRoute: String?){
+    var isShowMenu by remember { mutableStateOf(false) }
 
     CenterAlignedTopAppBar(
         title = { Text(stringResource(id = R.string.app_name)) },
         navigationIcon = {
-            IconButton(
-                onClick = {}
-            ){
-                Icon(
-                    imageVector = Icons.Default.Menu,
-                    contentDescription = "Menu"
-                )
+            if(currentRoute != "setup"&&currentRoute != "load"){
+                IconButton(
+                    onClick = {}
+                ){
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = "Menu"
+                    )
+                }
             }
         },
         actions = {
-            Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
-                IconButton(onClick = { showMenu = !showMenu }) {
-                    Icon(Icons.Default.MoreVert, contentDescription = "More")
-                }
+            if(currentRoute != "setup"&&currentRoute != "load") {
+                Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
+                    IconButton(onClick = { isShowMenu = !isShowMenu }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "More")
+                    }
 
-                DropdownMenu(
-                    expanded = showMenu,
-                    onDismissRequest = { showMenu = false }
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("設定") },
-                        onClick = { showMenu = false }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("キャッシュ削除") },
-                        onClick = { showMenu = false }
-                    )
+                    DropdownMenu(
+                        expanded = isShowMenu,
+                        onDismissRequest = { isShowMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("設定") },
+                            onClick = { isShowMenu = false }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("キャッシュ削除") },
+                            onClick = { isShowMenu = false }
+                        )
+                    }
                 }
             }
         },

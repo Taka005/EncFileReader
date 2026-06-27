@@ -19,7 +19,7 @@ runtime-livedata = "1.11.3"
 koin = "4.2.2"
 datastore = "1.2.1"
 disklrucache = "2.0.2"
-material-icons-extended = "1.7.0"
+material-icons-extended = "1.7.8"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

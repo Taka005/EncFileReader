@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.taka.encfilereader.service.StorageService
 import androidx.datastore.preferences.preferencesDataStore
+import coil3.disk.DiskCache
 import com.taka.encfilereader.service.ContentCacheService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -67,7 +68,8 @@ class StorageManager(private val context: Context){
     suspend fun getContentData(
         manifestIndex: Int,
         fileIndex: Int,
-        contentIndex: Int
+        contentIndex: Int,
+        isDiskCache: Boolean = true
     ): Result<ByteArray> = withContext(Dispatchers.IO) {
         val currentStorage = storage ?: return@withContext Result.failure(Exception("ストレージが初期化されていません"))
 
@@ -84,9 +86,13 @@ class StorageManager(private val context: Context){
                 return@withContext Result.failure(error)
             }
 
-            cacheService.save(cacheKey, data)
+            cacheService.save(cacheKey, data, isDiskCache)
 
             return@withContext Result.success(data)
         }
+    }
+
+    fun close(){
+        cacheService.close()
     }
 }

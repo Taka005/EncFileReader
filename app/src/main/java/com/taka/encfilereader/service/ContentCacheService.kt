@@ -19,6 +19,12 @@ class ContentCacheService(cacheDir: File){
         }
     }
 
+    val diskCacheSize: Long
+        get() = diskCache.size()
+
+    val memoryCacheSize: Long
+        get() = memoryCache.size().toLong()
+
     private fun hashKey(key: String): String {
         val digest = MessageDigest.getInstance("MD5")
         digest.update(key.toByteArray())
@@ -43,10 +49,16 @@ class ContentCacheService(cacheDir: File){
         }
     }
 
-    fun save(key: String, data: ByteArray){
+    fun save(
+        key: String,
+        data: ByteArray,
+        isDiskCache: Boolean = true
+    ){
         val hashedKey = hashKey(key)
 
         memoryCache.put(hashedKey, data)
+
+        if(!isDiskCache) return
 
         try {
             diskCache.edit(hashedKey)?.apply {
@@ -54,6 +66,7 @@ class ContentCacheService(cacheDir: File){
 
                 commit()
             }
+            diskCache.flush()
         } catch (e: Exception) {
             e.printStackTrace()
         }
