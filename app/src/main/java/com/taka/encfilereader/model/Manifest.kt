@@ -1,8 +1,6 @@
 package com.taka.encfilereader.model
 
 import kotlinx.serialization.json.Json
-import java.text.Collator
-import java.util.Locale
 import javax.crypto.Cipher
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.GCMParameterSpec
