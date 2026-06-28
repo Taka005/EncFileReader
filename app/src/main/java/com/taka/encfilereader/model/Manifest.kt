@@ -40,8 +40,6 @@ class Manifest (val dirName: String){
 
             this.files = metaData.files.toMutableList()
             this.originalDirName = metaData.originalDirName
-
-            this.sortFiles()
         }
     }
 
@@ -90,41 +88,6 @@ class Manifest (val dirName: String){
             val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
 
             SecretKeySpec(factory.generateSecret(spec).encoded, "AES")
-        }
-    }
-
-    fun sortFiles(){
-        val collator = Collator.getInstance(Locale.getDefault()).apply {
-            strength = Collator.PRIMARY
-        }
-
-        val naturalOrderComparator = Comparator<String> { s1, s2 ->
-            val parts1 = s1.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)".toRegex())
-            val parts2 = s2.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)".toRegex())
-
-            for (i in 0 until minOf(parts1.size, parts2.size)) {
-                val p1 = parts1[i]
-                val p2 = parts2[i]
-
-                val res = if (p1.all { it.isDigit() } && p2.all { it.isDigit() }) {
-                    p1.toBigInteger().compareTo(p2.toBigInteger())
-                } else {
-                    collator.compare(p1, p2)
-                }
-
-                if (res != 0) return@Comparator res
-            }
-            parts1.size.compareTo(parts2.size)
-        }
-
-        this.files.sortWith(Comparator { f1, f2 ->
-            naturalOrderComparator.compare(f1.originalFileName, f2.originalFileName)
-        })
-
-        this.files.forEach { data ->
-            data.contents.sortWith(Comparator { c1, c2 ->
-                naturalOrderComparator.compare(c1.name, c2.name)
-            })
         }
     }
 }
