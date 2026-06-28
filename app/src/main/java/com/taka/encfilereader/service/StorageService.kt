@@ -5,10 +5,13 @@ import com.taka.encfilereader.net.ApiClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class StorageService(val baseUrl: String){
+class StorageService(
+    private val baseUrl: String,
+    var maxRequests: Int
+){
     private val manifests: MutableList<Manifest> = mutableListOf()
 
-    private val apiClient = ApiClient(this.baseUrl)
+    private var apiClient = ApiClient(baseUrl,maxRequests)
 
     val manifestCount: Int
         get() = this.manifests.size
@@ -19,6 +22,10 @@ class StorageService(val baseUrl: String){
         )
 
         return Result.success(manifest)
+    }
+
+    fun resetApiClient(){
+        apiClient = ApiClient(baseUrl,maxRequests)
     }
 
     suspend fun getContentData(

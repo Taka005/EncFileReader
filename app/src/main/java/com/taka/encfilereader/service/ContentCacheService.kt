@@ -6,8 +6,8 @@ import java.io.File
 import java.security.MessageDigest
 
 class ContentCacheService(private val cacheDir: File){
-    val defaultMemoryCache = 50 * 1024 * 1024
-    val defaultDiskCache = 100 * 1024 * 1024
+    val defaultMemoryCache = 100 * 1024 * 1024
+    val defaultDiskCache = 500 * 1024 * 1024
 
     private var diskCache = openDiskCache()
 

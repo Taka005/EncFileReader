@@ -5,5 +5,6 @@ data class SettingUiState(
     var defaultDiskCache: Int = 0,
     var memoryCacheSize: Int = 0,
     var diskCacheSize: Int = 0,
-    var displayColumns: Int = 0
+    var displayColumns: Int = 0,
+    var maxRequests: Int = 0
 )

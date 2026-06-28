@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.taka.encfilereader.ui.components.ColumnSelectDropdown
+import com.taka.encfilereader.ui.components.MaxRequestDropDown
 import com.taka.encfilereader.ui.views.SettingViewModel
 import com.taka.encfilereader.util.formatBytes
 
@@ -69,6 +70,24 @@ fun SettingScreen(
                 ColumnSelectDropdown(
                     currentValue = uiState.displayColumns,
                     onValueSelected = { viewModel.setColumns(it) }
+                )
+            }
+        )
+
+        HorizontalDivider()
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text("ネットワーク設定", style = MaterialTheme.typography.titleLarge)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        ListItem(
+            headlineContent = { Text("最大接続数") },
+            trailingContent = {
+                MaxRequestDropDown(
+                    currentValue = uiState.maxRequests,
+                    onValueSelected = { viewModel.setMaxRequests(it) }
                 )
             }
         )

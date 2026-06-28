@@ -20,13 +20,22 @@ class SettingViewModel(
             defaultMemoryCache = manager.cacheService.defaultMemoryCache,
             diskCacheSize = manager.cacheService.diskCacheSize,
             memoryCacheSize = manager.cacheService.memoryCacheSize,
-            displayColumns = manager.displayColumns
+            displayColumns = manager.displayColumns,
+            maxRequests = manager.maxRequests
         )
     }
 
      fun setColumns(columns: Int){
         viewModelScope.launch {
             manager.updateDisplayColumns(columns)
+        }
+
+        loadData()
+    }
+
+    fun setMaxRequests(request: Int){
+        viewModelScope.launch {
+            manager.updateMaxRequests(request)
         }
 
         loadData()

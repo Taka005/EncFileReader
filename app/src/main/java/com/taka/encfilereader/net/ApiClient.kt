@@ -9,10 +9,13 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 
-open class ApiClient(val baseUrl: String){
+class ApiClient(
+   private val baseUrl: String,
+   private val maxRequests: Int
+){
     private val dispatcher = Dispatcher().apply {
-        maxRequests = 50
-        maxRequestsPerHost = 20
+        maxRequests = maxRequests
+        maxRequestsPerHost = maxRequests
     }
 
     private val okHttpClient = OkHttpClient.Builder()
