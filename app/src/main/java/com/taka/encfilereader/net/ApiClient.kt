@@ -11,10 +11,10 @@ import java.util.concurrent.TimeUnit
 
 class ApiClient(
    private val baseUrl: String,
-   private val maxRequests: Int
+   maxRequests: Int
 ){
     private val dispatcher = Dispatcher().apply {
-        maxRequests = maxRequests
+        this.maxRequests = maxRequests
         maxRequestsPerHost = maxRequests
     }
 
