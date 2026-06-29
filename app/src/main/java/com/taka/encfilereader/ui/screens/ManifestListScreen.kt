@@ -59,7 +59,7 @@ fun ManifestListScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "${progress.current} / ${progress.total}件をダウンロード済み",
+                    text = "${progress.current} / ${progress.total}件をロード済み",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
