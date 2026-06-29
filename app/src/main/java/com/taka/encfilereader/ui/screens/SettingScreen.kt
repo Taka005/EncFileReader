@@ -2,6 +2,7 @@ package com.taka.encfilereader.ui.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -93,5 +94,24 @@ fun SettingScreen(
         )
 
         HorizontalDivider()
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        ListItem(
+            headlineContent = { Text("初期化") },
+            supportingContent = {
+                Text("全ての設定を削除します")
+            },
+            trailingContent = {
+                Button(
+                    onClick = {
+
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("リセット")
+                }
+            }
+        )
     }
 }

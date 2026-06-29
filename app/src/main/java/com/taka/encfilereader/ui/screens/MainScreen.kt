@@ -60,6 +60,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
+            //TODO: routeで分岐させる
             TopAppBar(
                 navController,
                 currentRoute,
