@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.taka.encfilereader.manager.StorageManager
 import com.taka.encfilereader.ui.states.FileUiState
+import com.taka.encfilereader.ui.states.ProgressUiState
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +18,9 @@ class FileListViewModel(
     private val _uiState = MutableStateFlow<List<FileUiState>>(emptyList())
     val uiState = _uiState.asStateFlow()
 
+    private val _progressUiState = MutableStateFlow(ProgressUiState())
+    val progressUiState = _progressUiState.asStateFlow()
+
     private val _title: MutableStateFlow<String?> = MutableStateFlow(null)
     val title = _title.asStateFlow()
 
@@ -27,6 +31,8 @@ class FileListViewModel(
 
         val manifest = currentStorage.getManifest(manifestIndex).getOrNull() ?: return
 
+        _progressUiState.value = ProgressUiState(0,manifest.fileCount)
+
         _title.value = manifest.originalDirName
 
         viewModelScope.launch {
@@ -34,6 +40,8 @@ class FileListViewModel(
                 async {
                     val file = manifest.getFileMetaData(i).getOrNull()
                     val imageData = manager.getContentData(manifestIndex, i, 0).getOrNull()
+
+                    _progressUiState.value = ProgressUiState(_progressUiState.value.current + 1,manifest.fileCount)
 
                     FileUiState(
                         fileName = file?.originalFileName ?: "不明",
