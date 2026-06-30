@@ -97,6 +97,10 @@ fun SettingScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        Text("その他の設定", style = MaterialTheme.typography.titleLarge)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         ListItem(
             headlineContent = { Text("初期化") },
             supportingContent = {
