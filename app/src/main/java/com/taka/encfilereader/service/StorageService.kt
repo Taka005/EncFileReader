@@ -72,18 +72,8 @@ class StorageService(
         return Result.success(Unit)
     }
 
-    suspend fun downloadManifestData(password: String, index: Int): Result<Unit> = withContext(Dispatchers.IO) {
-        val manifest = this@StorageService.getManifest(index).getOrElse { error ->
-            return@withContext Result.failure(error)
-        }
-
-        val data = apiClient.fetchManifest(manifest.dirName).getOrElse { error ->
-            return@withContext Result.failure(error)
-        }
-
-        return@withContext withContext(Dispatchers.Default) {
-            manifest.setBuffer(data, password)
-        }
+    suspend fun fetchRawManifestData(dirName: String): Result<ByteArray> = withContext(Dispatchers.IO) {
+        return@withContext apiClient.fetchManifest(dirName)
     }
 
     suspend fun checkValidPassword(password: String): Result<Unit> = withContext(Dispatchers.IO) {

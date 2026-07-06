@@ -45,7 +45,7 @@ class LoadViewModel(
 
             val jobs = (0 until total).map { i ->
                 async {
-                    val result = currentStorage.downloadManifestData(currentPassword, i)
+                    val result = manager.loadManifest(i)
 
                     if (result.isSuccess) {
                         synchronized(this) {

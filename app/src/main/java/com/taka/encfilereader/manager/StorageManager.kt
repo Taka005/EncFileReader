@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.taka.encfilereader.service.StorageService
 import androidx.datastore.preferences.preferencesDataStore
 import com.taka.encfilereader.service.ContentCacheService
+import com.taka.encfilereader.service.ManifestCacheService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
@@ -24,7 +25,8 @@ class StorageManager(private val context: Context){
     private var _password: String? = null
     private var _displayColumns: Int = 2
     private val lock = Mutex()
-    val cacheService = ContentCacheService(context.cacheDir)
+    val manifestCacheService = ManifestCacheService(context.cacheDir)
+    val contentCacheService = ContentCacheService(context.cacheDir)
 
     val storage: StorageService?
         get() = _storage
@@ -91,6 +93,29 @@ class StorageManager(private val context: Context){
         }
     }
 
+    suspend fun loadManifest(index: Int): Result<Unit> = withContext(Dispatchers.IO) {
+        val currentStorage = storage ?: return@withContext Result.failure(Exception("ストレージが初期化されていません"))
+        val password = _password ?: return@withContext Result.failure(Exception("パスワードが設定されていません"))
+
+        val manifest = currentStorage.getManifest(index).getOrElse { return@withContext Result.failure(it) }
+
+        val cachedData = manifestCacheService.get(manifest.dirName)
+
+        val data = if (cachedData != null) {
+            cachedData
+        } else {
+            val downloaded = currentStorage.fetchRawManifestData(manifest.dirName).getOrElse {
+                return@withContext Result.failure(it)
+            }
+
+            manifestCacheService.save(manifest.dirName, downloaded)
+
+            downloaded
+        }
+
+        return@withContext manifest.setBuffer(data, password)
+    }
+
     suspend fun resetCredentials(){
         context.dataStore.edit { prefs ->
             prefs.remove(baseUrlKey)
@@ -115,7 +140,7 @@ class StorageManager(private val context: Context){
 
         val cacheKey = "${manifestIndex}_${fileIndex}_${contentIndex}"
 
-        val cachedData = cacheService.get(cacheKey)
+        val cachedData = contentCacheService.get(cacheKey)
 
         if (cachedData != null) {
             return@withContext Result.success(cachedData)
@@ -126,13 +151,14 @@ class StorageManager(private val context: Context){
                 return@withContext Result.failure(error)
             }
 
-            cacheService.save(cacheKey, data, isDiskCache)
+            contentCacheService.save(cacheKey, data, isDiskCache)
 
             return@withContext Result.success(data)
         }
     }
 
     fun close(){
-        cacheService.close()
+        contentCacheService.close()
+        manifestCacheService.close()
     }
 }
