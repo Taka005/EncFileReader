@@ -39,17 +39,33 @@ fun SettingScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         ListItem(
-            headlineContent = { Text("キャッシュサイズ") },
+            headlineContent = { Text("コンテンツキャッシュ") },
             supportingContent = {
                 Column {
-                    Text("メモリ: ${uiState.memoryCacheSize.formatBytes()}/${uiState.defaultMemoryCache.formatBytes()}")
-                    Text("ディスク: ${uiState.diskCacheSize.formatBytes()}/${uiState.defaultDiskCache.formatBytes()}")
+                    Text("メモリ: ${uiState.contentMemoryCacheSize.formatBytes()}/${uiState.maxContentMemoryCache.formatBytes()}")
+                    Text("ディスク: ${uiState.contentDiskCacheSize.formatBytes()}/${uiState.maxContentMemoryCache.formatBytes()}")
                 }
             },
             trailingContent = {
                 Button(
                     onClick = {
-                        viewModel.clearCache()
+                        viewModel.clearContentCache()
+                    }
+                ){
+                    Text("クリア")
+                }
+            }
+        )
+
+        ListItem(
+            headlineContent = { Text("マニフェストキャッシュ") },
+            supportingContent = {
+                Text("ディスク: ${uiState.manifestDiskCacheSize.formatBytes()}/${uiState.maxManifestDiskCache.formatBytes()}")
+            },
+            trailingContent = {
+                Button(
+                    onClick = {
+                        viewModel.clearManifestCache()
                     }
                 ){
                     Text("クリア")
@@ -109,7 +125,8 @@ fun SettingScreen(
             trailingContent = {
                 Button(
                     onClick = {
-                        viewModel.clearCache()
+                        viewModel.clearContentCache()
+                        viewModel.clearManifestCache()
                         onReset()
                     }
                 ) {

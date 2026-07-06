@@ -15,12 +15,13 @@ class SettingViewModel(
     val uiState = _uiState.asStateFlow()
 
     fun loadData(){
-        //TODO: maxになるように調整　contentとmanifestを分ける
         _uiState.value = SettingUiState(
-            defaultDiskCache = manager.contentCacheService.maxDiskCache,
-            defaultMemoryCache = manager.contentCacheService.maxMemoryCache,
-            diskCacheSize = manager.contentCacheService.diskCacheSize,
-            memoryCacheSize = manager.contentCacheService.memoryCacheSize,
+            maxContentDiskCache = manager.contentCacheService.maxDiskCache,
+            maxContentMemoryCache = manager.contentCacheService.maxMemoryCache,
+            maxManifestDiskCache = manager.manifestCacheService.maxDiskCache,
+            contentDiskCacheSize = manager.contentCacheService.diskCacheSize,
+            contentMemoryCacheSize = manager.contentCacheService.memoryCacheSize,
+            manifestDiskCacheSize = manager.manifestCacheService.diskCacheSize,
             displayColumns = manager.displayColumns,
             maxRequests = manager.maxRequests
         )
@@ -42,8 +43,13 @@ class SettingViewModel(
         loadData()
     }
 
-    fun clearCache(){
+    fun clearContentCache(){
         manager.contentCacheService.clearAll()
+        loadData()
+    }
+
+    fun clearManifestCache(){
+        manager.manifestCacheService.clearAll()
         loadData()
     }
 }

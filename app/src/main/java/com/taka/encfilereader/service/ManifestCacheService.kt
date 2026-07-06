@@ -4,8 +4,11 @@ import com.jakewharton.disklrucache.DiskLruCache
 import java.io.File
 
 class ManifestCacheService(private val cacheDir: File) {
-    private val maxDiskCache = 100 * 1024 * 1024
+    val maxDiskCache = 50 * 1024 * 1024
     private var diskCache = openDiskCache()
+
+    val diskCacheSize: Int
+        get() = diskCache.size().toInt()
 
     private fun openDiskCache(): DiskLruCache {
         return DiskLruCache.open(
