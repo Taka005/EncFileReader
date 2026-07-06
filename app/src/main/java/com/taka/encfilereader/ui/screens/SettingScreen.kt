@@ -24,7 +24,8 @@ import com.taka.encfilereader.util.formatBytes
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingScreen(
-    viewModel: SettingViewModel
+    viewModel: SettingViewModel,
+    onReset: () -> Unit,
 ){
     val uiState by viewModel.uiState.collectAsState()
 
@@ -108,7 +109,8 @@ fun SettingScreen(
             trailingContent = {
                 Button(
                     onClick = {
-
+                        viewModel.clearCache()
+                        onReset()
                     }
                 ) {
                     Text("リセット")

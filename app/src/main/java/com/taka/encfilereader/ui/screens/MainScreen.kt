@@ -121,7 +121,14 @@ fun MainScreen(modifier: Modifier = Modifier) {
             composable("setting") {
                 val viewModel: SettingViewModel = koinViewModel()
 
-                SettingScreen(viewModel)
+                SettingScreen(
+                    viewModel,
+                    onReset = {
+                        navController.navigate("setup") {
+                            popUpTo("setting") { inclusive = true }
+                        }
+                    }
+                )
             }
             composable("manifestList") {
                 val viewModel: ManifestListViewModel = koinViewModel()
