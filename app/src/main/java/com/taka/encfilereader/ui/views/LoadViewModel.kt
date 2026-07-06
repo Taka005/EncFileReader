@@ -33,7 +33,7 @@ class LoadViewModel(
                 return@launch
             }
 
-            currentStorage.checkValidPassword(currentPassword).getOrElse { error ->
+            manager.checkValidPassword(currentPassword).getOrElse { error ->
                 _uiState.value = LoadUiState.Error(error.message ?: "パスワードが正しくありません")
                 return@launch
             }

@@ -43,7 +43,7 @@ fun SettingScreen(
             supportingContent = {
                 Column {
                     Text("メモリ: ${uiState.contentMemoryCacheSize.formatBytes()}/${uiState.maxContentMemoryCache.formatBytes()}")
-                    Text("ディスク: ${uiState.contentDiskCacheSize.formatBytes()}/${uiState.maxContentMemoryCache.formatBytes()}")
+                    Text("ディスク: ${uiState.contentDiskCacheSize.formatBytes()}/${uiState.maxContentDiskCache.formatBytes()}")
                 }
             },
             trailingContent = {

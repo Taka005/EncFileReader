@@ -75,18 +75,4 @@ class StorageService(
     suspend fun fetchRawManifestData(dirName: String): Result<ByteArray> = withContext(Dispatchers.IO) {
         return@withContext apiClient.fetchManifest(dirName)
     }
-
-    suspend fun checkValidPassword(password: String): Result<Unit> = withContext(Dispatchers.IO) {
-        val manifest = this@StorageService.getManifest(0).getOrElse { error ->
-            return@withContext Result.failure(error)
-        }
-
-        val copyManifest = Manifest(manifest.dirName)
-
-        val data = this@StorageService.apiClient.fetchManifest(copyManifest.dirName).getOrElse { error ->
-            return@withContext Result.failure(error)
-        }
-
-        return@withContext manifest.setBuffer(data,password)
-    }
 }

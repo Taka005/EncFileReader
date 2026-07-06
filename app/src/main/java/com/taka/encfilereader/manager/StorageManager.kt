@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.taka.encfilereader.service.StorageService
 import androidx.datastore.preferences.preferencesDataStore
+import com.taka.encfilereader.model.Manifest
 import com.taka.encfilereader.service.ContentCacheService
 import com.taka.encfilereader.service.ManifestCacheService
 import kotlinx.coroutines.Dispatchers
@@ -114,6 +115,30 @@ class StorageManager(private val context: Context){
         }
 
         return@withContext manifest.setBuffer(data, password)
+    }
+
+    suspend fun checkValidPassword(password: String): Result<Unit> {
+        val storage = storage ?: return Result.failure(Exception("ストレージが初期化されていません"))
+
+        val manifest = storage.getManifest(0).getOrElse {
+            return Result.failure(it)
+        }
+
+        val copyManifest = Manifest(manifest.dirName)
+
+        val cachedData = manifestCacheService.get(copyManifest.dirName)
+
+        val data = if (cachedData != null) {
+            cachedData
+        } else {
+            val downloaded = storage.fetchRawManifestData(copyManifest.dirName).getOrElse {
+                return Result.failure(it)
+            }
+
+            downloaded
+        }
+
+        return copyManifest.setBuffer(data, password)
     }
 
     suspend fun resetCredentials(){
