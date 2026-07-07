@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 class SettingViewModel(
     private val manager: StorageManager
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow<SettingUiState>(SettingUiState())
+    private val _uiState = MutableStateFlow(SettingUiState())
     val uiState = _uiState.asStateFlow()
 
     fun loadData(){

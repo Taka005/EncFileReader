@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 class ReaderViewModel(
     private val manager: StorageManager
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow<ReaderUiState>(ReaderUiState())
+    private val _uiState = MutableStateFlow(ReaderUiState())
     val uiState = _uiState.asStateFlow()
 
     private val _title: MutableStateFlow<String?> = MutableStateFlow(null)
