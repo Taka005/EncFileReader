@@ -36,11 +36,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
-import com.taka.encfilereader.R
 import com.taka.encfilereader.ui.components.FileItem
 import com.taka.encfilereader.ui.views.FileListViewModel
 
@@ -54,6 +52,7 @@ fun FileListScreen(
 ){
     val items by viewModel.uiState.collectAsState()
     val progress by viewModel.progressUiState.collectAsState()
+    val title by viewModel.title.collectAsState()
     var isShowMenu by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -64,7 +63,7 @@ fun FileListScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(stringResource(R.string.app_name)) },
+                title = { Text(title ?: "") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
