@@ -3,11 +3,20 @@ package com.taka.encfilereader.ui.screens
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -17,11 +26,16 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.lifecycle.Lifecycle
+import androidx.navigation.NavController
 import com.taka.encfilereader.R
 import com.taka.encfilereader.ui.components.Content
 import com.taka.encfilereader.ui.views.ReaderViewModel
@@ -30,10 +44,12 @@ import com.taka.encfilereader.ui.views.ReaderViewModel
 @Composable
 fun ReaderScreen(
     viewModel: ReaderViewModel,
+    navController: NavController,
     manifestIndex: Int,
     fileIndex: Int
 ){
     val uiState by viewModel.uiState.collectAsState()
+    var isShowMenu by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.loadContent(manifestIndex, fileIndex, 0)
@@ -74,7 +90,45 @@ fun ReaderScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
                     navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
                     actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-                )
+                ),
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+
+                        }
+                    ){
+                        Icon(
+                            imageVector = Icons.Default.Menu,
+                            contentDescription = null
+                        )
+                    }
+                },
+                actions = {
+                    Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
+                        IconButton(onClick = { isShowMenu = !isShowMenu }) {
+                            Icon(
+                                Icons.Default.MoreVert,
+                                contentDescription = null
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = isShowMenu,
+                            onDismissRequest = { isShowMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("設定") },
+                                onClick = {
+                                    isShowMenu = false
+
+                                    if (navController.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
+                                        navController.navigate("setting")
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
             )
         }
     ) { innerPadding ->

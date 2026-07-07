@@ -112,6 +112,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     navController.navigate("setup") {
                         popUpTo("setting") { inclusive = true }
                     }
+                },
+                onBack = {
+                    navController.popBackStack()
                 }
             )
         }
@@ -152,7 +155,12 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 screenTitle = title
             }
 
-            ReaderScreen(viewModel, manifestIndex, fileIndex)
+            ReaderScreen(
+                viewModel,
+                navController,
+                manifestIndex,
+                fileIndex
+            )
         }
     }
 }
