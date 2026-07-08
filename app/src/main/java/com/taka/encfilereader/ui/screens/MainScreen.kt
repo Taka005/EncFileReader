@@ -124,7 +124,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 viewModel,
                 navController,
                 manifestIndex,
-                fileIndex
+                fileIndex,
             )
         }
     }

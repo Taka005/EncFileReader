@@ -17,6 +17,9 @@ class ReaderViewModel(
     private val _title: MutableStateFlow<String?> = MutableStateFlow(null)
     val title = _title.asStateFlow()
 
+    private val _pageCount = MutableStateFlow(0)
+    val pageCount = _pageCount.asStateFlow()
+
     fun loadContent(manifestIndex: Int,fileIndex: Int, newPosition: Int = 0){
         val currentStorage = manager.storage ?: run {
             return
@@ -26,6 +29,7 @@ class ReaderViewModel(
 
         val file = manifest.getFileMetaData(fileIndex).getOrNull() ?: return
 
+        _pageCount.value = file.contentCount
         _title.value = file.originalFileName
 
         viewModelScope.launch {

@@ -10,14 +10,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
+import coil3.request.CachePolicy
+import coil3.request.ImageRequest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Content(imageData: ByteArray){
     SubcomposeAsyncImage(
-        model = imageData,
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(imageData)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .diskCachePolicy(CachePolicy.DISABLED)
+            .build(),
         contentDescription = null,
         modifier = Modifier.fillMaxWidth(),
         contentScale = ContentScale.Fit,

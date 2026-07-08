@@ -1,7 +1,10 @@
 package com.taka.encfilereader.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
@@ -18,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -30,8 +34,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import com.taka.encfilereader.ui.components.Content
@@ -47,6 +53,7 @@ fun ReaderScreen(
 ){
     val uiState by viewModel.uiState.collectAsState()
     val title by viewModel.title.collectAsState()
+    val pageCount by viewModel.pageCount.collectAsState()
     var isShowMenu by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -130,24 +137,52 @@ fun ReaderScreen(
             )
         }
     ) { innerPadding ->
-        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                key = { pageIndex ->
-                    uiState.position + (pageIndex - if (uiState.before != null) 1 else 0)
-                }
-            ) { pageIndex ->
-                val imageBytes = pages.getOrNull(pageIndex)
-                if (imageBytes != null) {
-                    Content(imageBytes)
-                } else {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
+        Box(modifier = Modifier.fillMaxSize()) {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    key = { pageIndex ->
+                        uiState.position + (pageIndex - if (uiState.before != null) 1 else 0)
+                    }
+                ) { pageIndex ->
+                    val imageBytes = pages.getOrNull(pageIndex)
+                    if (imageBytes != null) {
+                        Content(imageBytes)
+                    } else {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
                     }
                 }
+            }
+
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "${uiState.position + 1} / $pageCount",
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Slider(
+                    value = uiState.position.toFloat(),
+                    onValueChange = { newValue ->
+                        viewModel.loadContent(manifestIndex, fileIndex, newValue.toInt())
+                    },
+                    valueRange = 0f..(pageCount - 1).coerceAtLeast(0).toFloat(),
+                )
             }
         }
     }
