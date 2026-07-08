@@ -1,15 +1,16 @@
 package com.taka.encfilereader.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
@@ -23,7 +24,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -40,7 +40,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -181,17 +180,28 @@ fun ReaderScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "${uiState.position + 1} / $pageCount",
+                    text = "${sliderValue.toInt()} / $pageCount",
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     style = MaterialTheme.typography.bodyMedium
                 )
 
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                     Slider(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        colors = SliderDefaults.colors(
+                            thumbColor = Color.Gray,
+                            activeTrackColor = Color.Gray,
+                            inactiveTrackColor = Color.LightGray,
+                            activeTickColor = Color.Transparent,
+                            inactiveTickColor = Color.Transparent
+                        ),
                         thumb = {
-                            SliderDefaults.Thumb(
-                                interactionSource = remember { MutableInteractionSource() },
-                                thumbSize = DpSize(20.dp, 20.dp)
+                            Box(
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .background(Color.Gray, CircleShape)
                             )
                         },
                         value = sliderValue,
@@ -202,7 +212,6 @@ fun ReaderScreen(
                             viewModel.loadContent(manifestIndex, fileIndex, sliderValue.toInt())
                         },
                         valueRange = 0f..(pageCount - 1).coerceAtLeast(0).toFloat(),
-                        steps = (pageCount - 2).coerceAtLeast(0),
                     )
                 }
             }
