@@ -1,6 +1,7 @@
 package com.taka.encfilereader.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +23,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderColors
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -29,6 +32,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -36,7 +40,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import com.taka.encfilereader.ui.components.Content
@@ -54,6 +60,7 @@ fun ReaderScreen(
     val title by viewModel.title.collectAsState()
     val pageCount by viewModel.pageCount.collectAsState()
     var isShowMenu by remember { mutableStateOf(false) }
+    var sliderValue by remember(uiState.position) { mutableFloatStateOf(uiState.position.toFloat()) }
 
     LaunchedEffect(Unit) {
         viewModel.loadContent(manifestIndex, fileIndex, 0)
@@ -65,6 +72,8 @@ fun ReaderScreen(
     val targetPage = if (uiState.before != null) 1 else 0
 
     LaunchedEffect(uiState.position) {
+        sliderValue = uiState.position.toFloat()
+
         if (pagerState.currentPage != targetPage) {
             pagerState.scrollToPage(targetPage)
         }
@@ -177,13 +186,25 @@ fun ReaderScreen(
                     style = MaterialTheme.typography.bodyMedium
                 )
 
-                Slider(
-                    value = uiState.position.toFloat(),
-                    onValueChange = { newValue ->
-                        viewModel.loadContent(manifestIndex, fileIndex, newValue.toInt())
-                    },
-                    valueRange = 0f..(pageCount - 1).coerceAtLeast(0).toFloat(),
-                )
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                    Slider(
+                        thumb = {
+                            SliderDefaults.Thumb(
+                                interactionSource = remember { MutableInteractionSource() },
+                                thumbSize = DpSize(20.dp, 20.dp)
+                            )
+                        },
+                        value = sliderValue,
+                        onValueChange = { newValue ->
+                            sliderValue = newValue
+                        },
+                        onValueChangeFinished = {
+                            viewModel.loadContent(manifestIndex, fileIndex, sliderValue.toInt())
+                        },
+                        valueRange = 0f..(pageCount - 1).coerceAtLeast(0).toFloat(),
+                        steps = (pageCount - 2).coerceAtLeast(0),
+                    )
+                }
             }
         }
     }
