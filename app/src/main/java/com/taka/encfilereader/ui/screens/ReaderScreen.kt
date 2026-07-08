@@ -1,16 +1,15 @@
 package com.taka.encfilereader.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
@@ -40,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -198,10 +198,10 @@ fun ReaderScreen(
                             inactiveTickColor = Color.Transparent
                         ),
                         thumb = {
-                            Box(
-                                modifier = Modifier
-                                    .size(20.dp)
-                                    .background(Color.Gray, CircleShape)
+                            SliderDefaults.Thumb(
+                                interactionSource = remember { MutableInteractionSource() },
+                                thumbSize = DpSize(20.dp, 20.dp),
+                                colors = SliderDefaults.colors(thumbColor = Color.Gray)
                             )
                         },
                         value = sliderValue,
@@ -211,7 +211,7 @@ fun ReaderScreen(
                         onValueChangeFinished = {
                             viewModel.loadContent(manifestIndex, fileIndex, sliderValue.toInt())
                         },
-                        valueRange = 0f..(pageCount - 1).coerceAtLeast(0).toFloat(),
+                        valueRange = 0f..(pageCount - 1).coerceAtLeast(0).toFloat()
                     )
                 }
             }

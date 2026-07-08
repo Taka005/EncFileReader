@@ -117,11 +117,11 @@ class StorageManager(private val context: Context){
         return@withContext manifest.setBuffer(data, password)
     }
 
-    suspend fun checkValidPassword(password: String): Result<Unit> {
-        val storage = storage ?: return Result.failure(Exception("ストレージが初期化されていません"))
+    suspend fun checkValidPassword(password: String): Result<Unit> = withContext(Dispatchers.IO) {
+        val storage = storage ?: return@withContext Result.failure(Exception("ストレージが初期化されていません"))
 
         val manifest = storage.getManifest(0).getOrElse {
-            return Result.failure(it)
+            return@withContext Result.failure(it)
         }
 
         val copyManifest = Manifest(manifest.dirName)
@@ -132,13 +132,13 @@ class StorageManager(private val context: Context){
             cachedData
         } else {
             val downloaded = storage.fetchRawManifestData(copyManifest.dirName).getOrElse {
-                return Result.failure(it)
+                return@withContext Result.failure(it)
             }
 
             downloaded
         }
 
-        return copyManifest.setBuffer(data, password)
+        return@withContext copyManifest.setBuffer(data, password)
     }
 
     suspend fun resetCredentials(){
