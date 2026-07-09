@@ -38,7 +38,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import com.taka.encfilereader.R
 import com.taka.encfilereader.ui.components.ManifestItem
@@ -100,9 +99,7 @@ fun ManifestListScreen(
                                 onClick = {
                                     isShowMenu = false
 
-                                    if (navController.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
-                                        navController.navigate("setting")
-                                    }
+                                    navController.navigate("setting")
                                 }
                             )
                         }
@@ -149,9 +146,7 @@ fun ManifestListScreen(
                     ManifestItem(
                         item,
                         onClick = {
-                            if (navController.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
-                                navController.navigate("fileList/${items.indexOf(item)}")
-                            }
+                            navController.navigate("fileList/${items.indexOf(item)}")
                         }
                     )
                 }

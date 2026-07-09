@@ -42,7 +42,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import com.taka.encfilereader.ui.components.Content
 import com.taka.encfilereader.ui.views.ReaderViewModel
@@ -126,9 +125,7 @@ fun ReaderScreen(
                                 onClick = {
                                     isShowMenu = false
 
-                                    if (navController.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
-                                        navController.navigate("setting")
-                                    }
+                                    navController.navigate("setting")
                                 }
                             )
                         }

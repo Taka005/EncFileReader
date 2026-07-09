@@ -37,7 +37,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import com.taka.encfilereader.ui.components.FileItem
 import com.taka.encfilereader.ui.views.FileListViewModel
@@ -100,9 +99,7 @@ fun FileListScreen(
                                 onClick = {
                                     isShowMenu = false
 
-                                    if (navController.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
-                                        navController.navigate("setting")
-                                    }
+                                    navController.navigate("setting")
                                 }
                             )
                         }
@@ -150,9 +147,7 @@ fun FileListScreen(
                     FileItem(
                         item,
                         onClick = {
-                            if (navController.currentBackStackEntry?.lifecycle?.currentState == Lifecycle.State.RESUMED) {
-                                navController.navigate("reader/${index}/${items.indexOf(item)}")
-                            }
+                            navController.navigate("reader/${index}/${items.indexOf(item)}")
                         }
                     )
                 }
