@@ -143,7 +143,7 @@ fun ReaderScreen(
                 HorizontalPager(
                     state = pagerState,
                     modifier = Modifier.fillMaxSize(),
-                    beyondViewportPageCount = 1
+                    beyondViewportPageCount = 3
                 ) { pageIndex ->
                     val imageBytes = uiState.loadedImages[pageIndex]
 
@@ -168,7 +168,7 @@ fun ReaderScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "${sliderValue.toInt()} / ${uiState.pageCount}",
+                    text = "${sliderValue.toInt() + 1} / ${uiState.pageCount}",
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     style = MaterialTheme.typography.bodyMedium
                 )

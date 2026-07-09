@@ -32,6 +32,8 @@ class ReaderViewModel(
                 position = position
             )
 
+            manager.historyManager.savePosition(manifestIndex, fileIndex, position)
+
             loadPage(manifestIndex, fileIndex, position)
         }
     }

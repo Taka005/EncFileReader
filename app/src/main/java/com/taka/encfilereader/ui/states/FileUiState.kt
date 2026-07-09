@@ -1,6 +1,7 @@
 package com.taka.encfilereader.ui.states
 
 data class FileUiState(
+    val fileIndex: Int,
     val fileName: String,
     val fileSize: Int,
     val contentCount: Int,
@@ -12,6 +13,7 @@ data class FileUiState(
 
         other as FileUiState
 
+        if (fileIndex != other.fileIndex) return false
         if (fileSize != other.fileSize) return false
         if (contentCount != other.contentCount) return false
         if (fileName != other.fileName) return false
@@ -21,10 +23,12 @@ data class FileUiState(
     }
 
     override fun hashCode(): Int {
-        var result = fileSize
+        var result = fileIndex
+        result = 31 * result + fileSize
         result = 31 * result + contentCount
         result = 31 * result + fileName.hashCode()
         result = 31 * result + (imageData?.contentHashCode() ?: 0)
         return result
     }
+
 }

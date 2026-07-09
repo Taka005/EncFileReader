@@ -24,6 +24,14 @@ class FileListViewModel(
     private val _title: MutableStateFlow<String?> = MutableStateFlow(null)
     val title = _title.asStateFlow()
 
+    suspend fun isHistory(manifestIndex: Int, fileIndex: Int): Boolean {
+        return manager.historyManager.getPosition(manifestIndex,fileIndex) != null
+    }
+
+    suspend fun resetHistory(manifestIndex: Int, fileIndex: Int){
+        manager.historyManager.savePosition(manifestIndex, fileIndex,0)
+    }
+
     fun loadFileList(manifestIndex: Int) {
         _uiState.value = emptyList()
 
@@ -44,6 +52,7 @@ class FileListViewModel(
                     _progressUiState.value = ProgressUiState(_progressUiState.value.current + 1,manifest.fileCount)
 
                     FileUiState(
+                        fileIndex = i,
                         fileName = file?.originalFileName ?: "不明",
                         contentCount = file?.contentCount ?: 0,
                         fileSize = file?.size ?: 0,

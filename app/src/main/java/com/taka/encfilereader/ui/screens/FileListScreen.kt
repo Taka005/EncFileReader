@@ -33,13 +33,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.taka.encfilereader.ui.components.FileItem
+import com.taka.encfilereader.ui.components.OpenDialog
+import com.taka.encfilereader.ui.states.FileUiState
 import com.taka.encfilereader.ui.views.FileListViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,6 +57,8 @@ fun FileListScreen(
     val progress by viewModel.progressUiState.collectAsState()
     val title by viewModel.title.collectAsState()
     var isShowMenu by remember { mutableStateOf(false) }
+    var selectedFileIndex by remember { mutableStateOf<FileUiState?>(null) }
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         viewModel.loadFileList(index)
@@ -147,10 +153,45 @@ fun FileListScreen(
                     FileItem(
                         item,
                         onClick = {
-                            navController.navigate("reader/${index}/${items.indexOf(item)}")
+                            coroutineScope.launch {
+                                if(viewModel.isHistory(index, items.indexOf(item))){
+                                    selectedFileIndex = item
+                                }else{
+                                    navController.navigate("reader/${index}/${items.indexOf(item)}")
+                                }
+                            }
                         }
                     )
                 }
+            }
+
+            if (selectedFileIndex != null) {
+                OpenDialog(
+                    selectedFileIndex?.fileName ?: "不明",
+                    onContinue = {
+                        val indexToOpen = selectedFileIndex
+                        selectedFileIndex = null
+
+                        if (indexToOpen != null) {
+                            navController.navigate("reader/${index}/${indexToOpen.fileIndex}")
+                        }
+                    },
+                    onBegin = {
+                        val indexToOpen = selectedFileIndex
+                        selectedFileIndex = null
+
+                        if (indexToOpen != null) {
+                            coroutineScope.launch {
+                                viewModel.resetHistory(index, indexToOpen.fileIndex)
+                            }
+
+                            navController.navigate("reader/${index}/${indexToOpen.fileIndex}")
+                        }
+                    },
+                    onCancel = {
+                        selectedFileIndex = null
+                    }
+                )
             }
         }
     }
