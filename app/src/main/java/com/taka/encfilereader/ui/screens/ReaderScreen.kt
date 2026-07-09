@@ -57,14 +57,11 @@ fun ReaderScreen(
     manifestIndex: Int,
     fileIndex: Int
 ){
-    val title by viewModel.title.collectAsState()
-    val pageCount by viewModel.pageCount.collectAsState()
-    val position by viewModel.position.collectAsState()
-    val loadImages by viewModel.loadImages.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     var isShowMenu by remember { mutableStateOf(false) }
-    var sliderValue by remember(position) { mutableFloatStateOf(position.toFloat()) }
-    val pagerState = rememberPagerState(pageCount = { pageCount })
+    var sliderValue by remember(uiState.position) { mutableFloatStateOf(uiState.position.toFloat()) }
+    val pagerState = rememberPagerState(pageCount = { uiState.pageCount })
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
@@ -72,22 +69,22 @@ fun ReaderScreen(
     }
 
     LaunchedEffect(pagerState.currentPage) {
-        if (pagerState.currentPage != position) {
+        if (pagerState.currentPage != uiState.position) {
             viewModel.setPosition(pagerState.currentPage)
         }
     }
 
-    LaunchedEffect(position) {
-        viewModel.loadPage(manifestIndex, fileIndex, position)
-        viewModel.loadPage(manifestIndex, fileIndex, position - 1)
-        viewModel.loadPage(manifestIndex, fileIndex, position + 1)
+    LaunchedEffect(uiState.position) {
+        viewModel.loadPage(manifestIndex, fileIndex, uiState.position)
+        viewModel.loadPage(manifestIndex, fileIndex, uiState.position - 1)
+        viewModel.loadPage(manifestIndex, fileIndex, uiState.position + 1)
     }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(title ?: "") },
+                title = { Text(uiState.title ?: "") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
@@ -146,7 +143,7 @@ fun ReaderScreen(
                     modifier = Modifier.fillMaxSize(),
                     beyondViewportPageCount = 1
                 ) { pageIndex ->
-                    val imageBytes = loadImages[pageIndex]
+                    val imageBytes = uiState.loadedImages[pageIndex]
 
                     if (imageBytes != null) {
                         Content(imageBytes)
@@ -169,7 +166,7 @@ fun ReaderScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "${sliderValue.toInt()} / $pageCount",
+                    text = "${sliderValue.toInt()} / ${uiState.pageCount}",
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -206,7 +203,7 @@ fun ReaderScreen(
                                 pagerState.scrollToPage(newPosition)
                             }
                         },
-                        valueRange = 0f..(pageCount - 1).coerceAtLeast(0).toFloat()
+                        valueRange = 0f..(uiState.pageCount - 1).coerceAtLeast(0).toFloat()
                     )
                 }
             }
