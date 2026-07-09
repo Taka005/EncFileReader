@@ -11,7 +11,8 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 class StorageManager(context: Context){
-    private val settingDataManager = SettingDataManager(context)
+    val historyManager = HistoryManager(context)
+    private val settingsManager = SettingsManager(context)
     private var _storage: StorageService? = null
     private var _password: String? = null
     private var _displayColumns: Int = 2
@@ -36,32 +37,32 @@ class StorageManager(context: Context){
 
         _displayColumns = value
 
-        settingDataManager.setValue(settingDataManager.displayColumnsKey, value.toString())
+        settingsManager.setValue(settingsManager.displayColumnsKey, value.toString())
     }
 
     suspend fun updateMaxRequests(value: Int) {
         if (value <= 0) return
 
-        settingDataManager.setValue(settingDataManager.maxRequestsKey, value.toString())
+        settingsManager.setValue(settingsManager.maxRequestsKey, value.toString())
 
         storage?.maxRequests = value
         storage?.resetApiClient()
     }
 
     suspend fun setCredentials(baseUrl: String, password: String) {
-        settingDataManager.setValue(settingDataManager.baseUrlKey, baseUrl)
-        settingDataManager.setValue(settingDataManager.passwordKey, password)
+        settingsManager.setValue(settingsManager.baseUrlKey, baseUrl)
+        settingsManager.setValue(settingsManager.passwordKey, password)
 
         _storage = StorageService(baseUrl,maxRequests)
         _password = password
     }
 
     suspend fun loadCredentials(): Boolean {
-        val baseUrl = settingDataManager.getValue(settingDataManager.baseUrlKey)
-        val password = settingDataManager.getValue(settingDataManager.passwordKey)
+        val baseUrl = settingsManager.getValue(settingsManager.baseUrlKey)
+        val password = settingsManager.getValue(settingsManager.passwordKey)
 
-        updateDisplayColumns(baseUrl?.toInt() ?: displayColumns)
-        updateMaxRequests(password?.toInt() ?: maxRequests)
+        updateDisplayColumns(settingsManager.getValue(settingsManager.displayColumnsKey)?.toInt() ?: displayColumns)
+        updateMaxRequests(settingsManager.getValue(settingsManager.maxRequestsKey)?.toInt() ?: maxRequests)
 
         return if (
             baseUrl != null &&
@@ -124,7 +125,7 @@ class StorageManager(context: Context){
     }
 
     suspend fun resetCredentials(){
-        settingDataManager.reset()
+        settingsManager.reset()
 
         _storage = null
         _password = null

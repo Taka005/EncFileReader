@@ -23,37 +23,56 @@ class ReaderViewModel(
         val manifest = currentStorage.getManifest(manifestIndex).getOrNull() ?: return
         val file = manifest.getFileMetaData(fileIndex).getOrNull() ?: return
 
-        _uiState.value = _uiState.value.copy(
-            pageCount = file.contentCount,
-            title = file.originalFileName
-        )
+        viewModelScope.launch {
+            val position = manager.historyManager.getPosition(manifestIndex, fileIndex) ?: 0
 
-        loadPage(manifestIndex, fileIndex, 0)
+            _uiState.value = _uiState.value.copy(
+                pageCount = file.contentCount,
+                title = file.originalFileName,
+                position = position
+            )
+
+            loadPage(manifestIndex, fileIndex, position)
+        }
     }
 
-    fun setPosition(newPosition: Int) {
+    fun setPosition(manifestIndex: Int, fileIndex: Int, newPosition: Int) {
         _uiState.value = _uiState.value.copy(position = newPosition)
+
+        unLoadPage(newPosition)
+
+        viewModelScope.launch {
+            manager.historyManager.savePosition(manifestIndex, fileIndex, newPosition)
+        }
     }
 
     fun loadPage(manifestIndex: Int, fileIndex: Int, contentIndex: Int) {
-        val state = _uiState.value
-        if (contentIndex < 0 || contentIndex >= state.pageCount) return
-        if (state.loadedImages.containsKey(contentIndex) || loadingJobs.containsKey(contentIndex)) return
+        if (contentIndex < 0 || contentIndex >= _uiState.value.pageCount) return
+        if (_uiState.value.loadedImages.containsKey(contentIndex) || loadingJobs.containsKey(contentIndex)) return
 
         loadingJobs[contentIndex] = viewModelScope.launch {
             manager.getContentData(manifestIndex, fileIndex, contentIndex, false).getOrNull()?.let { data ->
                 val currentImages = _uiState.value.loadedImages.toMutableMap()
                 currentImages[contentIndex] = data
 
-                if (currentImages.size > 30) {
-                    val keyToRemove = currentImages.keys.minByOrNull { abs(it - contentIndex) }
-                    if (keyToRemove != null) currentImages.remove(keyToRemove)
-                }
-
                 _uiState.value = _uiState.value.copy(loadedImages = currentImages)
             }
 
             loadingJobs.remove(contentIndex)
+        }
+    }
+
+    private fun unLoadPage(currentPosition: Int) {
+        val currentImages = _uiState.value.loadedImages
+
+        val toRemove = currentImages.keys.filter { key ->
+            abs(key - currentPosition) > 3
+        }
+
+        if (toRemove.isNotEmpty()) {
+            val newImages = currentImages.toMutableMap()
+            toRemove.forEach { newImages.remove(it) }
+            _uiState.value = _uiState.value.copy(loadedImages = newImages)
         }
     }
 }

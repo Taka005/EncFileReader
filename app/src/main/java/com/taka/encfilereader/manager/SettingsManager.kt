@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.first
 
 private val Context.dataStore by preferencesDataStore(name = "settings")
 
-class SettingDataManager(private val context: Context){
+class SettingsManager(private val context: Context){
     val baseUrlKey = stringPreferencesKey("base_url")
     val passwordKey = stringPreferencesKey("password")
     val displayColumnsKey = stringPreferencesKey("displayColumnsKey")

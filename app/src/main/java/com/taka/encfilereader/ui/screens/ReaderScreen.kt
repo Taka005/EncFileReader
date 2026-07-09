@@ -34,7 +34,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,7 +46,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import com.taka.encfilereader.ui.components.Content
 import com.taka.encfilereader.ui.views.ReaderViewModel
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,8 +59,10 @@ fun ReaderScreen(
 
     var isShowMenu by remember { mutableStateOf(false) }
     var sliderValue by remember(uiState.position) { mutableFloatStateOf(uiState.position.toFloat()) }
-    val pagerState = rememberPagerState(pageCount = { uiState.pageCount })
-    val coroutineScope = rememberCoroutineScope()
+    val pagerState = rememberPagerState(
+        initialPage = uiState.position,
+        pageCount = { uiState.pageCount }
+    )
 
     LaunchedEffect(Unit) {
         viewModel.initialize(manifestIndex,fileIndex)
@@ -70,11 +70,16 @@ fun ReaderScreen(
 
     LaunchedEffect(pagerState.currentPage) {
         if (pagerState.currentPage != uiState.position) {
-            viewModel.setPosition(pagerState.currentPage)
+            viewModel.setPosition(manifestIndex, fileIndex, pagerState.currentPage)
         }
     }
 
     LaunchedEffect(uiState.position) {
+        sliderValue = uiState.position.toFloat()
+        if (pagerState.currentPage != uiState.position) {
+            pagerState.scrollToPage(uiState.position)
+        }
+
         viewModel.loadPage(manifestIndex, fileIndex, uiState.position)
         viewModel.loadPage(manifestIndex, fileIndex, uiState.position - 1)
         viewModel.loadPage(manifestIndex, fileIndex, uiState.position + 1)
@@ -195,13 +200,7 @@ fun ReaderScreen(
                             sliderValue = newValue
                         },
                         onValueChangeFinished = {
-                            val newPosition = sliderValue.toInt()
-
-                            viewModel.setPosition(newPosition)
-
-                            coroutineScope.launch {
-                                pagerState.scrollToPage(newPosition)
-                            }
+                            viewModel.setPosition(manifestIndex, fileIndex, sliderValue.toInt())
                         },
                         valueRange = 0f..(uiState.pageCount - 1).coerceAtLeast(0).toFloat()
                     )
