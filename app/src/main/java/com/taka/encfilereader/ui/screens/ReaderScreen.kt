@@ -34,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +47,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
 import com.taka.encfilereader.ui.components.Content
 import com.taka.encfilereader.ui.views.ReaderViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,41 +57,30 @@ fun ReaderScreen(
     manifestIndex: Int,
     fileIndex: Int
 ){
-    val uiState by viewModel.uiState.collectAsState()
     val title by viewModel.title.collectAsState()
     val pageCount by viewModel.pageCount.collectAsState()
+    val position by viewModel.position.collectAsState()
+    val loadImages by viewModel.loadImages.collectAsState()
+
     var isShowMenu by remember { mutableStateOf(false) }
-    var sliderValue by remember(uiState.position) { mutableFloatStateOf(uiState.position.toFloat()) }
+    var sliderValue by remember(position) { mutableFloatStateOf(position.toFloat()) }
+    val pagerState = rememberPagerState(pageCount = { pageCount })
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        viewModel.loadContent(manifestIndex, fileIndex, 0)
-    }
-
-    val pages = listOfNotNull(uiState.before, uiState.now, uiState.after)
-    val pagerState = rememberPagerState(pageCount = { pages.size })
-
-    val targetPage = if (uiState.before != null) 1 else 0
-
-    LaunchedEffect(uiState.position) {
-        sliderValue = uiState.position.toFloat()
-
-        if (pagerState.currentPage != targetPage) {
-            pagerState.scrollToPage(targetPage)
-        }
+        viewModel.initialize(manifestIndex,fileIndex)
     }
 
     LaunchedEffect(pagerState.currentPage) {
-        if (pagerState.currentPage != targetPage) {
-            val nextPos = if (pagerState.currentPage > targetPage) {
-                uiState.position + 1
-            } else {
-                uiState.position - 1
-            }
-
-            if (nextPos >= 0) {
-                viewModel.loadContent(manifestIndex, fileIndex, nextPos)
-            }
+        if (pagerState.currentPage != position) {
+            viewModel.setPosition(pagerState.currentPage)
         }
+    }
+
+    LaunchedEffect(position) {
+        viewModel.loadPage(manifestIndex, fileIndex, position)
+        viewModel.loadPage(manifestIndex, fileIndex, position - 1)
+        viewModel.loadPage(manifestIndex, fileIndex, position + 1)
     }
 
     Scaffold(
@@ -152,13 +143,11 @@ fun ReaderScreen(
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 HorizontalPager(
                     state = pagerState,
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    key = { pageIndex ->
-                        uiState.position + (pageIndex - if (uiState.before != null) 1 else 0)
-                    }
+                    modifier = Modifier.fillMaxSize(),
+                    beyondViewportPageCount = 1
                 ) { pageIndex ->
-                    val imageBytes = pages.getOrNull(pageIndex)
+                    val imageBytes = loadImages[pageIndex]
+
                     if (imageBytes != null) {
                         Content(imageBytes)
                     } else {
@@ -209,7 +198,13 @@ fun ReaderScreen(
                             sliderValue = newValue
                         },
                         onValueChangeFinished = {
-                            viewModel.loadContent(manifestIndex, fileIndex, sliderValue.toInt())
+                            val newPosition = sliderValue.toInt()
+
+                            viewModel.setPosition(newPosition)
+
+                            coroutineScope.launch {
+                                pagerState.scrollToPage(newPosition)
+                            }
                         },
                         valueRange = 0f..(pageCount - 1).coerceAtLeast(0).toFloat()
                     )

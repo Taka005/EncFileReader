@@ -96,7 +96,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         composable("manifestList") {
             val viewModel: ManifestListViewModel = koinViewModel()
 
-            ManifestListScreen(viewModel, columns = storageManager.displayColumns, navController)
+            ManifestListScreen(viewModel, storageManager.displayColumns, navController)
         }
         composable(
             "fileList/{index}",
