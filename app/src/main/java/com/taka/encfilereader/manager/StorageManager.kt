@@ -1,27 +1,17 @@
 package com.taka.encfilereader.manager
 
 import android.content.Context
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
 import com.taka.encfilereader.service.StorageService
-import androidx.datastore.preferences.preferencesDataStore
 import com.taka.encfilereader.model.Manifest
 import com.taka.encfilereader.service.ContentCacheService
 import com.taka.encfilereader.service.ManifestCacheService
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
-private val Context.dataStore by preferencesDataStore(name = "settings")
-
-class StorageManager(private val context: Context){
-    private val baseUrlKey = stringPreferencesKey("base_url")
-    private val passwordKey = stringPreferencesKey("password")
-    private val displayColumnsKey = stringPreferencesKey("displayColumnsKey")
-    private val maxRequestsKey = stringPreferencesKey("maxRequestsKey")
-
+class StorageManager(context: Context){
+    private val settingDataManager = SettingDataManager(context)
     private var _storage: StorageService? = null
     private var _password: String? = null
     private var _displayColumns: Int = 2
@@ -46,40 +36,32 @@ class StorageManager(private val context: Context){
 
         _displayColumns = value
 
-        context.dataStore.edit { prefs ->
-            prefs[displayColumnsKey] = value.toString()
-        }
+        settingDataManager.setValue(settingDataManager.displayColumnsKey, value.toString())
     }
 
     suspend fun updateMaxRequests(value: Int) {
         if (value <= 0) return
 
-        context.dataStore.edit { prefs ->
-            prefs[maxRequestsKey] = value.toString()
-        }
+        settingDataManager.setValue(settingDataManager.maxRequestsKey, value.toString())
 
         storage?.maxRequests = value
         storage?.resetApiClient()
     }
 
     suspend fun setCredentials(baseUrl: String, password: String) {
-        context.dataStore.edit { prefs ->
-            prefs[baseUrlKey] = baseUrl
-            prefs[passwordKey] = password
-        }
+        settingDataManager.setValue(settingDataManager.baseUrlKey, baseUrl)
+        settingDataManager.setValue(settingDataManager.passwordKey, password)
 
         _storage = StorageService(baseUrl,maxRequests)
         _password = password
     }
 
     suspend fun loadCredentials(): Boolean {
-        val prefs = context.dataStore.data.first()
+        val baseUrl = settingDataManager.getValue(settingDataManager.baseUrlKey)
+        val password = settingDataManager.getValue(settingDataManager.passwordKey)
 
-        val baseUrl = prefs[baseUrlKey]
-        val password = prefs[passwordKey]
-
-        updateDisplayColumns(prefs[displayColumnsKey]?.toInt() ?: displayColumns)
-        updateMaxRequests(prefs[maxRequestsKey]?.toInt() ?: maxRequests)
+        updateDisplayColumns(baseUrl?.toInt() ?: displayColumns)
+        updateMaxRequests(password?.toInt() ?: maxRequests)
 
         return if (
             baseUrl != null &&
@@ -142,15 +124,11 @@ class StorageManager(private val context: Context){
     }
 
     suspend fun resetCredentials(){
-        context.dataStore.edit { prefs ->
-            prefs.remove(baseUrlKey)
-            prefs.remove(passwordKey)
-            prefs.remove(displayColumnsKey)
-            prefs.remove(maxRequestsKey)
-        }
+        settingDataManager.reset()
 
         _storage = null
         _password = null
+
         updateDisplayColumns(2)
         updateMaxRequests(50)
     }
