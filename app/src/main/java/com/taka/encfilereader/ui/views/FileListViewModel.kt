@@ -28,6 +28,10 @@ class FileListViewModel(
         manager.historyManager.savePosition(manifestIndex, fileIndex,0)
     }
 
+    suspend fun getContentData(manifestIndex: Int, fileIndex: Int,contentIndex: Int): ByteArray?{
+        return manager.getContentData(manifestIndex, fileIndex, contentIndex).getOrNull()
+    }
+
     fun loadFileList(manifestIndex: Int) {
         _uiState.value = emptyList()
 

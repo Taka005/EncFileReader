@@ -120,8 +120,7 @@ fun FileListScreen(
                     .fillMaxSize()
                     .padding(innerPadding),
                 contentAlignment = Alignment.Center,
-
-                ) {
+            ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
@@ -155,7 +154,11 @@ fun FileListScreen(
                         onClick = {
                             coroutineScope.launch {
                                 if(item.positionHistory != null){
-                                    selectedFileIndex = item
+                                    val imageData = viewModel.getContentData(index,item.fileIndex,item.positionHistory)
+
+                                    selectedFileIndex = item.copy(
+                                        imageData = imageData
+                                    )
                                 }else{
                                     navController.navigate("reader/${index}/${items.indexOf(item)}")
                                 }
