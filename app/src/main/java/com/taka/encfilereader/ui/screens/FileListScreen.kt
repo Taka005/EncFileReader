@@ -154,7 +154,7 @@ fun FileListScreen(
                         item,
                         onClick = {
                             coroutineScope.launch {
-                                if(viewModel.isHistory(index, items.indexOf(item))){
+                                if(item.positionHistory != null){
                                     selectedFileIndex = item
                                 }else{
                                     navController.navigate("reader/${index}/${items.indexOf(item)}")
@@ -167,7 +167,7 @@ fun FileListScreen(
 
             if (selectedFileIndex != null) {
                 OpenDialog(
-                    selectedFileIndex?.fileName ?: "不明",
+                    uiState = selectedFileIndex,
                     onContinue = {
                         val indexToOpen = selectedFileIndex
                         selectedFileIndex = null

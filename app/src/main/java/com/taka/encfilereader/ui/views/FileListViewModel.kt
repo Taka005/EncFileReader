@@ -24,10 +24,6 @@ class FileListViewModel(
     private val _title: MutableStateFlow<String?> = MutableStateFlow(null)
     val title = _title.asStateFlow()
 
-    suspend fun isHistory(manifestIndex: Int, fileIndex: Int): Boolean {
-        return manager.historyManager.getPosition(manifestIndex,fileIndex) != null
-    }
-
     suspend fun resetHistory(manifestIndex: Int, fileIndex: Int){
         manager.historyManager.savePosition(manifestIndex, fileIndex,0)
     }
@@ -56,6 +52,7 @@ class FileListViewModel(
                         fileName = file?.originalFileName ?: "不明",
                         contentCount = file?.contentCount ?: 0,
                         fileSize = file?.size ?: 0,
+                        positionHistory = manager.historyManager.getPosition(manifestIndex,i),
                         imageData = imageData
                     )
                 }

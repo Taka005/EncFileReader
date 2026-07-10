@@ -66,7 +66,6 @@ fun FileItem(
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
-
             )
 
             Text(
