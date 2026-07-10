@@ -5,10 +5,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
@@ -19,6 +19,8 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
@@ -53,6 +55,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -61,7 +64,9 @@ import coil3.compose.SubcomposeAsyncImage
 import com.taka.encfilereader.ui.components.Content
 import com.taka.encfilereader.ui.views.HistoryViewModel
 import com.taka.encfilereader.ui.views.ReaderViewModel
+import com.taka.encfilereader.util.formatTimestamp
 import kotlinx.coroutines.launch
+import kotlin.math.round
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -169,60 +174,133 @@ fun ReaderScreen(
             drawerState = drawerState,
             drawerContent = {
                 ModalDrawerSheet(
-                    modifier = Modifier.fillMaxWidth(fraction = 0.5f)
+                    modifier = Modifier
+                        .fillMaxWidth(fraction = 0.7f)
+                        .padding(innerPadding)
                 ){
                     Text(
                         text = "履歴",
                         modifier = Modifier
-                            .padding(innerPadding)
-                            .fillMaxWidth(),
-                        textAlign = TextAlign.Center
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleMedium
                     )
 
                     HorizontalDivider()
 
                     LazyColumn {
                         items(histories) { item ->
-                            Column(
+                            Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .padding(3.dp)
                                     .clickable {
                                         coroutineScope.launch { drawerState.close() }
                                         navController.navigate("reader/${item.manifestIndex}/${item.fileIndex}")
-                                    }
-                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                                    },
+                                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                             ) {
-                                SubcomposeAsyncImage(
-                                    model = item.imageData,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .heightIn(max = 200.dp),
-                                    contentScale = ContentScale.Fit,
-                                    error = {
-                                        Box(
-                                            modifier = Modifier.fillMaxSize(),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                                Row {
+                                    SubcomposeAsyncImage(
+                                        model = item.imageData,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .width(80.dp)
+                                            .aspectRatio(4f / 5f),
+                                        contentScale = ContentScale.Crop,
+                                        error = {
+                                            Box(
+                                                modifier = Modifier.fillMaxSize(),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                CircularProgressIndicator(
+                                                    modifier = Modifier.padding(
+                                                        16.dp
+                                                    )
+                                                )
+                                            }
+                                        },
+                                        loading = {
+                                            Box(
+                                                modifier = Modifier.fillMaxSize(),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                CircularProgressIndicator(
+                                                    modifier = Modifier.padding(
+                                                        16.dp
+                                                    )
+                                                )
+                                            }
                                         }
-                                    },
-                                    loading = {
-                                        Box(
-                                            modifier = Modifier.fillMaxSize(),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            CircularProgressIndicator(modifier = Modifier.padding(16.dp))
-                                        }
-                                    },
-                                )
+                                    )
 
-                                Spacer(modifier = Modifier.width(12.dp))
+                                    Column(modifier = Modifier.weight(1f)){
+                                        Text(
+                                            text = item.dirName,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(
+                                                    start = 8.dp,
+                                                    end = 8.dp,
+                                                    top = 4.dp,
+                                                    bottom = 0.dp
+                                                ),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            textAlign = TextAlign.Center,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
 
-                                Text(
-                                    text = "${item.dirName} ${item.fileName}",
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
+                                        Text(
+                                            text = item.fileName,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(
+                                                    start = 8.dp,
+                                                    end = 8.dp,
+                                                    top = 4.dp,
+                                                    bottom = 0.dp
+                                                ),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            textAlign = TextAlign.Center,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+
+                                        Text(
+                                            text = "${item.position + 1}/${item.contentCount} ${round((item.position.toFloat() / item.contentCount.toFloat()) * 100).toInt()}％",
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(
+                                                    start = 8.dp,
+                                                    end = 8.dp,
+                                                    top = 0.dp,
+                                                    bottom = 4.dp
+                                                ),
+                                            textAlign = TextAlign.Right,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+
+                                        Text(
+                                            text = formatTimestamp(item.timestamp),
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(
+                                                    start = 8.dp,
+                                                    end = 8.dp,
+                                                    top = 0.dp,
+                                                    bottom = 4.dp
+                                                ),
+                                            textAlign = TextAlign.Right,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                }
                             }
                         }
                     }

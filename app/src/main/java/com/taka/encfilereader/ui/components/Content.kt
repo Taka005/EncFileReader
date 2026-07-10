@@ -37,6 +37,6 @@ fun Content(imageData: ByteArray){
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(modifier = Modifier.padding(16.dp))
             }
-        },
+        }
     )
 }
