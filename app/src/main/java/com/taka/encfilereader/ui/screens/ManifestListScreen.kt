@@ -164,116 +164,140 @@ fun ManifestListScreen(
 
                     HorizontalDivider()
 
-                    LazyColumn {
-                        items(histories) { item ->
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(3.dp)
-                                    .clickable {
-                                        coroutineScope.launch { drawerState.close() }
-                                        navController.navigate("reader/${item.manifestIndex}/${item.fileIndex}")
-                                    },
-                                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    if (histories.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
                             ) {
-                                Row {
-                                    SubcomposeAsyncImage(
-                                        model = item.imageData,
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .width(80.dp)
-                                            .aspectRatio(4f / 5f),
-                                        contentScale = ContentScale.Crop,
-                                        error = {
-                                            Box(
-                                                modifier = Modifier.fillMaxSize(),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                CircularProgressIndicator(
-                                                    modifier = Modifier.padding(
-                                                        16.dp
-                                                    )
-                                                )
-                                            }
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(48.dp),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    strokeWidth = 4.dp
+                                )
+                            }
+                        }
+                    } else {
+                        LazyColumn {
+                            items(histories) { item ->
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(3.dp)
+                                        .clickable {
+                                            coroutineScope.launch { drawerState.close() }
+                                            navController.navigate("reader/${item.manifestIndex}/${item.fileIndex}")
                                         },
-                                        loading = {
-                                            Box(
-                                                modifier = Modifier.fillMaxSize(),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                CircularProgressIndicator(
-                                                    modifier = Modifier.padding(
-                                                        16.dp
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                                ) {
+                                    Row {
+                                        SubcomposeAsyncImage(
+                                            model = item.imageData,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .width(80.dp)
+                                                .aspectRatio(4f / 5f),
+                                            contentScale = ContentScale.Crop,
+                                            error = {
+                                                Box(
+                                                    modifier = Modifier.fillMaxSize(),
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    CircularProgressIndicator(
+                                                        modifier = Modifier.padding(
+                                                            16.dp
+                                                        )
                                                     )
-                                                )
+                                                }
+                                            },
+                                            loading = {
+                                                Box(
+                                                    modifier = Modifier.fillMaxSize(),
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    CircularProgressIndicator(
+                                                        modifier = Modifier.padding(
+                                                            16.dp
+                                                        )
+                                                    )
+                                                }
                                             }
+                                        )
+
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Text(
+                                                text = item.dirName,
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(
+                                                        start = 8.dp,
+                                                        end = 8.dp,
+                                                        top = 4.dp,
+                                                        bottom = 0.dp
+                                                    ),
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                textAlign = TextAlign.Center,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+
+                                            Text(
+                                                text = item.fileName,
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(
+                                                        start = 8.dp,
+                                                        end = 8.dp,
+                                                        top = 4.dp,
+                                                        bottom = 0.dp
+                                                    ),
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                textAlign = TextAlign.Center,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+
+                                            Text(
+                                                text = "${item.position + 1}/${item.contentCount} ${
+                                                    round(
+                                                        (item.position.toFloat() / item.contentCount.toFloat()) * 100
+                                                    ).toInt()
+                                                }％",
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(
+                                                        start = 8.dp,
+                                                        end = 8.dp,
+                                                        top = 0.dp,
+                                                        bottom = 4.dp
+                                                    ),
+                                                textAlign = TextAlign.Right,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+
+                                            Text(
+                                                text = formatTimestamp(item.timestamp),
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(
+                                                        start = 8.dp,
+                                                        end = 8.dp,
+                                                        top = 0.dp,
+                                                        bottom = 4.dp
+                                                    ),
+                                                textAlign = TextAlign.Right,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
                                         }
-                                    )
-
-                                    Column(modifier = Modifier.weight(1f)){
-                                        Text(
-                                            text = item.dirName,
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(
-                                                    start = 8.dp,
-                                                    end = 8.dp,
-                                                    top = 4.dp,
-                                                    bottom = 0.dp
-                                                ),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            textAlign = TextAlign.Center,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-
-                                        Text(
-                                            text = item.fileName,
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(
-                                                    start = 8.dp,
-                                                    end = 8.dp,
-                                                    top = 4.dp,
-                                                    bottom = 0.dp
-                                                ),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            textAlign = TextAlign.Center,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-
-                                        Text(
-                                            text = "${item.position + 1}/${item.contentCount} ${round((item.position.toFloat() / item.contentCount.toFloat()) * 100).toInt()}％",
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(
-                                                    start = 8.dp,
-                                                    end = 8.dp,
-                                                    top = 0.dp,
-                                                    bottom = 4.dp
-                                                ),
-                                            textAlign = TextAlign.Right,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-
-                                        Text(
-                                            text = formatTimestamp(item.timestamp),
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(
-                                                    start = 8.dp,
-                                                    end = 8.dp,
-                                                    top = 0.dp,
-                                                    bottom = 4.dp
-                                                ),
-                                            textAlign = TextAlign.Right,
-                                            style = MaterialTheme.typography.bodySmall,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
                                     }
                                 }
                             }
