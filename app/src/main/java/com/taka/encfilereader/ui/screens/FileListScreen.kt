@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -18,15 +19,21 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -59,6 +66,7 @@ fun FileListScreen(
     var isShowMenu by remember { mutableStateOf(false) }
     var selectedFileState by remember { mutableStateOf<FileUiState?>(null) }
     val coroutineScope = rememberCoroutineScope()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
     LaunchedEffect(Unit) {
         viewModel.loadFileList(index)
@@ -78,9 +86,15 @@ fun FileListScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-
+                            coroutineScope.launch {
+                                if (drawerState.isOpen) {
+                                    drawerState.close()
+                                } else {
+                                    drawerState.open()
+                                }
+                            }
                         }
-                    ){
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Menu,
                             contentDescription = null
@@ -114,82 +128,110 @@ fun FileListScreen(
             )
         }
     ) { innerPadding ->
-        if (items.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                contentAlignment = Alignment.Center,
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(48.dp),
-                        color = MaterialTheme.colorScheme.primary,
-                        strokeWidth = 4.dp
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = {
+                ModalDrawerSheet(
+                    modifier = Modifier.fillMaxWidth(fraction = 0.5f)
+                ){
                     Text(
-                        text = "${progress.current} / ${progress.total}件をロード済み",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = "履歴",
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .padding(innerPadding)
+                    )
+                    HorizontalDivider()
+                    NavigationDrawerItem(
+                        label = { Text("項目1") },
+                        selected = false,
+                        onClick = {
+                            coroutineScope.launch { drawerState.close() }
+                        }
                     )
                 }
             }
-        } else {
-            LazyVerticalGrid(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                columns = GridCells.Fixed(columns),
-                contentPadding = PaddingValues(3.dp)
-            ) {
-                items(items) { item ->
-                    FileItem(
-                        item,
-                        onClick = {
-                            coroutineScope.launch {
-                                if(item.positionHistory != null){
-                                    val imageData = viewModel.getContentData(index,item.fileIndex,item.positionHistory)
+        ) {
+            if (items.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(48.dp),
+                            color = MaterialTheme.colorScheme.primary,
+                            strokeWidth = 4.dp
+                        )
 
-                                    selectedFileState = item.copy(
-                                        imageData = imageData
-                                    )
-                                }else{
-                                    navController.navigate("reader/${index}/${items.indexOf(item)}")
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text(
+                            text = "${progress.current} / ${progress.total}件をロード済み",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            } else {
+                LazyVerticalGrid(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    columns = GridCells.Fixed(columns),
+                    contentPadding = PaddingValues(3.dp)
+                ) {
+                    items(items) { item ->
+                        FileItem(
+                            item,
+                            onClick = {
+                                coroutineScope.launch {
+                                    if (item.positionHistory != null) {
+                                        val imageData = viewModel.getContentData(
+                                            index,
+                                            item.fileIndex,
+                                            item.positionHistory
+                                        )
+
+                                        selectedFileState = item.copy(
+                                            imageData = imageData
+                                        )
+                                    } else {
+                                        navController.navigate("reader/${index}/${items.indexOf(item)}")
+                                    }
                                 }
                             }
+                        )
+                    }
+                }
+
+                if (selectedFileState != null) {
+                    OpenDialog(
+                        uiState = selectedFileState,
+                        onContinue = {
+                            selectedFileState?.let { data ->
+                                selectedFileState = null
+                                navController.navigate("reader/${index}/${data.fileIndex}")
+                            }
+                        },
+                        onBegin = {
+                            selectedFileState?.let { data ->
+                                selectedFileState = null
+                                coroutineScope.launch {
+                                    viewModel.resetHistory(index, data.fileIndex)
+                                }
+                                navController.navigate("reader/${index}/${data.fileIndex}")
+                            }
+                        },
+                        onCancel = {
+                            selectedFileState = null
                         }
                     )
                 }
-            }
-
-            if (selectedFileState != null) {
-                OpenDialog(
-                    uiState = selectedFileState,
-                    onContinue = {
-                        selectedFileState?.let { data ->
-                            selectedFileState = null
-                            navController.navigate("reader/${index}/${data.fileIndex}")
-                        }
-                    },
-                    onBegin = {
-                        selectedFileState?.let { data ->
-                            selectedFileState = null
-                            coroutineScope.launch {
-                                viewModel.resetHistory(index, data.fileIndex)
-                            }
-                            navController.navigate("reader/${index}/${data.fileIndex}")
-                        }
-                    },
-                    onCancel = {
-                        selectedFileState = null
-                    }
-                )
             }
         }
     }

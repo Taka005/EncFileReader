@@ -15,17 +15,23 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -34,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.taka.encfilereader.ui.components.Content
 import com.taka.encfilereader.ui.views.ReaderViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,6 +70,8 @@ fun ReaderScreen(
         initialPage = uiState.position,
         pageCount = { uiState.pageCount }
     )
+    val coroutineScope = rememberCoroutineScope()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
     LaunchedEffect(Unit) {
         viewModel.initialize(manifestIndex,fileIndex)
@@ -98,7 +108,13 @@ fun ReaderScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-
+                            coroutineScope.launch {
+                                if (drawerState.isOpen) {
+                                    drawerState.close()
+                                } else {
+                                    drawerState.open()
+                                }
+                            }
                         }
                     ){
                         Icon(
@@ -134,73 +150,97 @@ fun ReaderScreen(
             )
         }
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = {
+                ModalDrawerSheet(
+                    modifier = Modifier.fillMaxWidth(fraction = 0.5f)
+                ){
+                    Text(
+                        text = "履歴",
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .padding(innerPadding)
+                    )
+                    HorizontalDivider()
+                    NavigationDrawerItem(
+                        label = { Text("項目1") },
+                        selected = false,
+                        onClick = {
+                            coroutineScope.launch { drawerState.close() }
+                        }
+                    )
+                }
+            }
         ) {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier.fillMaxSize(),
-                    beyondViewportPageCount = 3
-                ) { pageIndex ->
-                    val imageBytes = uiState.loadedImages[pageIndex]
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxSize(),
+                        beyondViewportPageCount = 3
+                    ) { pageIndex ->
+                        val imageBytes = uiState.loadedImages[pageIndex]
 
-                    if (imageBytes != null) {
-                        Content(imageBytes)
-                    } else {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
+                        if (imageBytes != null) {
+                            Content(imageBytes)
+                        } else {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
+                            }
                         }
                     }
                 }
-            }
 
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .background(Color.Black.copy(alpha = 0f)),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "${sliderValue.toInt() + 1} / ${uiState.pageCount}",
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    Slider(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        colors = SliderDefaults.colors(
-                            thumbColor = Color.Gray,
-                            activeTrackColor = Color.Gray,
-                            inactiveTrackColor = Color.LightGray,
-                            activeTickColor = Color.Transparent,
-                            inactiveTickColor = Color.Transparent
-                        ),
-                        thumb = {
-                            SliderDefaults.Thumb(
-                                interactionSource = remember { MutableInteractionSource() },
-                                thumbSize = DpSize(20.dp, 20.dp),
-                                colors = SliderDefaults.colors(thumbColor = Color.Gray)
-                            )
-                        },
-                        value = sliderValue,
-                        onValueChange = { newValue ->
-                            sliderValue = newValue
-                        },
-                        onValueChangeFinished = {
-                            viewModel.setPosition(manifestIndex, fileIndex, sliderValue.toInt())
-                        },
-                        valueRange = 0f..(uiState.pageCount - 1).coerceAtLeast(0).toFloat()
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .background(Color.Black.copy(alpha = 0f)),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "${sliderValue.toInt() + 1} / ${uiState.pageCount}",
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        style = MaterialTheme.typography.bodyMedium
                     )
+
+                    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                        Slider(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            colors = SliderDefaults.colors(
+                                thumbColor = Color.Gray,
+                                activeTrackColor = Color.Gray,
+                                inactiveTrackColor = Color.LightGray,
+                                activeTickColor = Color.Transparent,
+                                inactiveTickColor = Color.Transparent
+                            ),
+                            thumb = {
+                                SliderDefaults.Thumb(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    thumbSize = DpSize(20.dp, 20.dp),
+                                    colors = SliderDefaults.colors(thumbColor = Color.Gray)
+                                )
+                            },
+                            value = sliderValue,
+                            onValueChange = { newValue ->
+                                sliderValue = newValue
+                            },
+                            onValueChangeFinished = {
+                                viewModel.setPosition(manifestIndex, fileIndex, sliderValue.toInt())
+                            },
+                            valueRange = 0f..(uiState.pageCount - 1).coerceAtLeast(0).toFloat()
+                        )
+                    }
                 }
             }
         }
