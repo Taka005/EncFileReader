@@ -3,6 +3,7 @@ package com.taka.encfilereader.di
 import org.koin.core.module.dsl.viewModel
 import com.taka.encfilereader.manager.StorageManager
 import com.taka.encfilereader.ui.views.FileListViewModel
+import com.taka.encfilereader.ui.views.HistoryViewModel
 import com.taka.encfilereader.ui.views.LoadViewModel
 import com.taka.encfilereader.ui.views.ManifestListViewModel
 import com.taka.encfilereader.ui.views.ReaderViewModel
@@ -26,4 +27,5 @@ val appModule = module {
     viewModel { ManifestListViewModel(get()) }
     viewModel { FileListViewModel(get()) }
     viewModel { ReaderViewModel(get()) }
+    viewModel { HistoryViewModel(get()) }
 }

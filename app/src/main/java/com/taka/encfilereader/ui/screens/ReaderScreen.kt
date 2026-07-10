@@ -1,13 +1,19 @@
 package com.taka.encfilereader.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -25,7 +31,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -45,12 +50,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil3.compose.SubcomposeAsyncImage
 import com.taka.encfilereader.ui.components.Content
+import com.taka.encfilereader.ui.views.HistoryViewModel
 import com.taka.encfilereader.ui.views.ReaderViewModel
 import kotlinx.coroutines.launch
 
@@ -60,7 +69,8 @@ fun ReaderScreen(
     viewModel: ReaderViewModel,
     navController: NavController,
     manifestIndex: Int,
-    fileIndex: Int
+    fileIndex: Int,
+    historyViewModel: HistoryViewModel
 ){
     val uiState by viewModel.uiState.collectAsState()
 
@@ -72,9 +82,14 @@ fun ReaderScreen(
     )
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val histories by historyViewModel.histories.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.initialize(manifestIndex,fileIndex)
+    }
+
+    LaunchedEffect(drawerState.isOpen) {
+        if (drawerState.isOpen) historyViewModel.loadHistories()
     }
 
     LaunchedEffect(pagerState.currentPage) {
@@ -159,17 +174,58 @@ fun ReaderScreen(
                     Text(
                         text = "履歴",
                         modifier = Modifier
-                            .padding(16.dp)
                             .padding(innerPadding)
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center
                     )
+
                     HorizontalDivider()
-                    NavigationDrawerItem(
-                        label = { Text("項目1") },
-                        selected = false,
-                        onClick = {
-                            coroutineScope.launch { drawerState.close() }
+
+                    LazyColumn {
+                        items(histories) { item ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        coroutineScope.launch { drawerState.close() }
+                                        navController.navigate("reader/${item.manifestIndex}/${item.fileIndex}")
+                                    }
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                SubcomposeAsyncImage(
+                                    model = item.imageData,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(max = 200.dp),
+                                    contentScale = ContentScale.Fit,
+                                    error = {
+                                        Box(
+                                            modifier = Modifier.fillMaxSize(),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                                        }
+                                    },
+                                    loading = {
+                                        Box(
+                                            modifier = Modifier.fillMaxSize(),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                                        }
+                                    },
+                                )
+
+                                Spacer(modifier = Modifier.width(12.dp))
+
+                                Text(
+                                    text = "${item.dirName} ${item.fileName}",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
                         }
-                    )
+                    }
                 }
             }
         ) {
