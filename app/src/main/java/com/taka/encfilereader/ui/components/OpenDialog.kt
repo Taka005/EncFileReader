@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -36,7 +37,13 @@ fun OpenDialog(
         onDismissRequest = {
             onCancel()
         },
-        title = { Text(uiState?.fileName ?: "不明") },
+        title = {
+            Text(
+                text = uiState?.fileName ?: "不明",
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+        },
         text = {
             Column {
                 SubcomposeAsyncImage(
@@ -44,8 +51,8 @@ fun OpenDialog(
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio(4f / 5f),
-                    contentScale = ContentScale.Crop,
+                        .heightIn(max = 200.dp),
+                    contentScale = ContentScale.Fit,
                     error = {
                         Box(
                             modifier = Modifier.fillMaxSize(),

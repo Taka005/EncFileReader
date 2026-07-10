@@ -57,7 +57,7 @@ fun FileListScreen(
     val progress by viewModel.progressUiState.collectAsState()
     val title by viewModel.title.collectAsState()
     var isShowMenu by remember { mutableStateOf(false) }
-    var selectedFileIndex by remember { mutableStateOf<FileUiState?>(null) }
+    var selectedFileState by remember { mutableStateOf<FileUiState?>(null) }
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
@@ -156,7 +156,7 @@ fun FileListScreen(
                                 if(item.positionHistory != null){
                                     val imageData = viewModel.getContentData(index,item.fileIndex,item.positionHistory)
 
-                                    selectedFileIndex = item.copy(
+                                    selectedFileState = item.copy(
                                         imageData = imageData
                                     )
                                 }else{
@@ -168,31 +168,26 @@ fun FileListScreen(
                 }
             }
 
-            if (selectedFileIndex != null) {
+            if (selectedFileState != null) {
                 OpenDialog(
-                    uiState = selectedFileIndex,
+                    uiState = selectedFileState,
                     onContinue = {
-                        val indexToOpen = selectedFileIndex
-                        selectedFileIndex = null
-
-                        if (indexToOpen != null) {
-                            navController.navigate("reader/${index}/${indexToOpen.fileIndex}")
+                        selectedFileState?.let { data ->
+                            selectedFileState = null
+                            navController.navigate("reader/${index}/${data.fileIndex}")
                         }
                     },
                     onBegin = {
-                        val indexToOpen = selectedFileIndex
-                        selectedFileIndex = null
-
-                        if (indexToOpen != null) {
+                        selectedFileState?.let { data ->
+                            selectedFileState = null
                             coroutineScope.launch {
-                                viewModel.resetHistory(index, indexToOpen.fileIndex)
+                                viewModel.resetHistory(index, data.fileIndex)
                             }
-
-                            navController.navigate("reader/${index}/${indexToOpen.fileIndex}")
+                            navController.navigate("reader/${index}/${data.fileIndex}")
                         }
                     },
                     onCancel = {
-                        selectedFileIndex = null
+                        selectedFileState = null
                     }
                 )
             }
