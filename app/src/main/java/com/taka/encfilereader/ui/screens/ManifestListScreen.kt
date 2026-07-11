@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -151,13 +152,14 @@ fun ManifestListScreen(
                 ModalDrawerSheet(
                     modifier = Modifier
                         .fillMaxWidth(fraction = 0.7f)
-                        .padding(innerPadding)
+                        .padding(innerPadding),
+                    windowInsets = WindowInsets(0, 0, 0, 0)
                 ){
                     Text(
                         text = "履歴",
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 16.dp),
+                            .padding(vertical = 10.dp),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.titleMedium
                     )
