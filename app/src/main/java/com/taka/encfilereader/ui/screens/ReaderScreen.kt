@@ -214,7 +214,7 @@ fun ReaderScreen(
                         }
                     } else {
                         LazyColumn(
-                            contentPadding = PaddingValues(3.dp)
+                            contentPadding = PaddingValues(2.dp)
                         ){
                             items(histories) { item ->
                                 Card(
