@@ -185,7 +185,9 @@ fun ManifestListScreen(
                             }
                         }
                     } else {
-                        LazyColumn {
+                        LazyColumn(
+                            contentPadding = PaddingValues(3.dp)
+                        ){
                             items(histories) { item ->
                                 Card(
                                     modifier = Modifier
@@ -211,9 +213,7 @@ fun ManifestListScreen(
                                                     contentAlignment = Alignment.Center
                                                 ) {
                                                     CircularProgressIndicator(
-                                                        modifier = Modifier.padding(
-                                                            16.dp
-                                                        )
+                                                        modifier = Modifier.padding(16.dp)
                                                     )
                                                 }
                                             },
@@ -223,9 +223,7 @@ fun ManifestListScreen(
                                                     contentAlignment = Alignment.Center
                                                 ) {
                                                     CircularProgressIndicator(
-                                                        modifier = Modifier.padding(
-                                                            16.dp
-                                                        )
+                                                        modifier = Modifier.padding(16.dp)
                                                     )
                                                 }
                                             }

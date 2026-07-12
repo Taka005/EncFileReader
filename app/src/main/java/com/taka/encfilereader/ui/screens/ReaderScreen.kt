@@ -6,6 +6,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
@@ -212,7 +213,9 @@ fun ReaderScreen(
                             }
                         }
                     } else {
-                        LazyColumn {
+                        LazyColumn(
+                            contentPadding = PaddingValues(3.dp)
+                        ){
                             items(histories) { item ->
                                 Card(
                                     modifier = Modifier
@@ -238,9 +241,7 @@ fun ReaderScreen(
                                                     contentAlignment = Alignment.Center
                                                 ) {
                                                     CircularProgressIndicator(
-                                                        modifier = Modifier.padding(
-                                                            16.dp
-                                                        )
+                                                        modifier = Modifier.padding(16.dp)
                                                     )
                                                 }
                                             },
@@ -250,9 +251,7 @@ fun ReaderScreen(
                                                     contentAlignment = Alignment.Center
                                                 ) {
                                                     CircularProgressIndicator(
-                                                        modifier = Modifier.padding(
-                                                            16.dp
-                                                        )
+                                                        modifier = Modifier.padding(16.dp)
                                                     )
                                                 }
                                             }
