@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
 import com.taka.encfilereader.ui.states.FileUiState
 import com.taka.encfilereader.util.formatBytes
+import kotlin.math.round
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,8 +69,11 @@ fun FileItem(
                 overflow = TextOverflow.Ellipsis
             )
 
+            val positionHistory = fileUiState.positionHistory ?: 0
+            val contentCount = fileUiState.contentCount ?: 0
+
             Text(
-                text = "${fileUiState.fileSize.formatBytes()} ${fileUiState.contentCount}ファイル",
+                text = "${round((positionHistory.toFloat() / contentCount.toFloat()) * 100).toInt()}％ ${fileUiState.fileSize.formatBytes()} ${fileUiState.contentCount}ファイル",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 8.dp, end = 8.dp, top = 0.dp, bottom = 4.dp),

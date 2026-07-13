@@ -15,10 +15,15 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
+import net.engawapg.lib.zoomable.ScrollGesturePropagation
+import net.engawapg.lib.zoomable.rememberZoomState
+import net.engawapg.lib.zoomable.zoomable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Content(imageData: ByteArray){
+    val zoomState = rememberZoomState()
+
     SubcomposeAsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
             .data(imageData)
@@ -26,7 +31,14 @@ fun Content(imageData: ByteArray){
             .diskCachePolicy(CachePolicy.DISABLED)
             .build(),
         contentDescription = null,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .zoomable(
+                zoomState = zoomState,
+                enableOneFingerZoom = false,
+                scrollGesturePropagation = ScrollGesturePropagation.NotZoomed,
+                onDoubleTap = {}
+            ),
         contentScale = ContentScale.Fit,
         error = {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
