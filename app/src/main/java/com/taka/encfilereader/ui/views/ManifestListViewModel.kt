@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.taka.encfilereader.manager.StorageManager
 import com.taka.encfilereader.ui.states.ManifestUiState
-import com.taka.encfilereader.ui.states.ProgressUiState
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,33 +17,37 @@ class ManifestListViewModel(
     private val _uiState = MutableStateFlow<List<ManifestUiState>>(emptyList())
     val uiState = _uiState.asStateFlow()
 
-    private val _progressUiState = MutableStateFlow(ProgressUiState())
-    val progressUiState = _progressUiState.asStateFlow()
-
     fun loadManifestList() {
         _uiState.value = emptyList()
 
         val currentStorage = manager.storage ?: return
 
-        _progressUiState.value = ProgressUiState(0,currentStorage.manifestCount)
-
         viewModelScope.launch {
-            val deferredList = (0 until currentStorage.manifestCount).map { i ->
+            _uiState.value = (0 until currentStorage.manifestCount).map { i ->
+                val manifest = currentStorage.getManifest(i).getOrNull()
+
+                ManifestUiState(
+                    manifestIndex = i,
+                    dirName = manifest?.originalDirName ?: "不明",
+                    fileCount = manifest?.fileCount ?: 0,
+                    imageData = null
+                )
+            }
+
+            val deferredList = _uiState.value.map { manifestUi ->
                 async {
-                    val manifest = currentStorage.getManifest(i).getOrNull()
-                    val manifestData = manager.getContentData(i, 0, 0).getOrNull()
+                    val data = manager.getContentData(manifestUi.manifestIndex, 0, 0).getOrNull()
 
-                    _progressUiState.value = ProgressUiState(_progressUiState.value.current + 1, currentStorage.manifestCount)
-
-                    ManifestUiState(
-                        dirName = manifest?.originalDirName ?: "不明",
-                        fileCount = manifest?.fileCount ?: 0,
-                        imageData = manifestData
-                    )
+                    manifestUi.manifestIndex to data
                 }
             }
 
-            _uiState.value = deferredList.awaitAll()
+            val results = deferredList.awaitAll()
+
+            _uiState.value = _uiState.value.map { manifestUi ->
+                val loadedData = results.find { it.first == manifestUi.manifestIndex }?.second
+                manifestUi.copy(imageData = loadedData)
+            }
         }
     }
 }

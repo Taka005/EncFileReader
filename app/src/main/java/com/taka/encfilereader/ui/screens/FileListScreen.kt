@@ -6,12 +6,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -77,7 +75,6 @@ fun FileListScreen(
     historyViewModel: HistoryViewModel
 ){
     val items by viewModel.uiState.collectAsState()
-    val progress by viewModel.progressUiState.collectAsState()
     val title by viewModel.title.collectAsState()
     var isShowMenu by remember { mutableStateOf(false) }
     var selectedFileState by remember { mutableStateOf<FileUiState?>(null) }
@@ -325,14 +322,6 @@ fun FileListScreen(
                             color = MaterialTheme.colorScheme.primary,
                             strokeWidth = 4.dp
                         )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Text(
-                            text = "${progress.current} / ${progress.total}件をロード済み",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
                     }
                 }
             } else {
@@ -379,9 +368,11 @@ fun FileListScreen(
                         onBegin = {
                             selectedFileState?.let { data ->
                                 selectedFileState = null
+
                                 coroutineScope.launch {
                                     viewModel.resetHistory(index, data.fileIndex)
                                 }
+
                                 navController.navigate("reader/${index}/${data.fileIndex}")
                             }
                         },
