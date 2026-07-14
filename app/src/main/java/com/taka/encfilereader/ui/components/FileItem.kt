@@ -69,11 +69,12 @@ fun FileItem(
                 overflow = TextOverflow.Ellipsis
             )
 
-            val positionHistory = fileUiState.positionHistory ?: 0
+            val positionHistory = fileUiState.positionHistory
             val contentCount = fileUiState.contentCount
+            val progress = if(positionHistory != null) "${round((positionHistory.toFloat() / contentCount.toFloat()) * 100).toInt()} " else ""
 
             Text(
-                text = "${round((positionHistory.toFloat() / contentCount.toFloat()) * 100).toInt()}％ ${fileUiState.fileSize.formatBytes()} ${fileUiState.contentCount}ファイル",
+                text = "${progress}${fileUiState.fileSize.formatBytes()} ${contentCount}ファイル",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 8.dp, end = 8.dp, top = 0.dp, bottom = 4.dp),
