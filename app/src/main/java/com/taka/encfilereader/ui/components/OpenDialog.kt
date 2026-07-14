@@ -27,7 +27,7 @@ import kotlin.math.round
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OpenDialog(
-    uiState: FileUiState?,
+    fileUiState: FileUiState?,
     onContinue: () -> Unit,
     onBegin: () -> Unit,
     onCancel: () -> Unit
@@ -38,7 +38,7 @@ fun OpenDialog(
         },
         title = {
             Text(
-                text = uiState?.fileName ?: "不明",
+                text = fileUiState?.fileName ?: "不明",
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
@@ -46,7 +46,7 @@ fun OpenDialog(
         text = {
             Column {
                 SubcomposeAsyncImage(
-                    model = uiState?.imageData,
+                    model = fileUiState?.imageData,
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -72,8 +72,8 @@ fun OpenDialog(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                val positionHistory = uiState?.positionHistory ?: 0
-                val contentCount = uiState?.contentCount ?: 0
+                val positionHistory = fileUiState?.positionHistory ?: 0
+                val contentCount = fileUiState?.contentCount ?: 0
 
                 Text(
                     text = "${positionHistory + 1}/${contentCount} ${round((positionHistory.toFloat()/contentCount.toFloat())*100).toInt()}％",

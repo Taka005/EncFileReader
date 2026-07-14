@@ -70,7 +70,7 @@ fun FileItem(
             )
 
             val positionHistory = fileUiState.positionHistory ?: 0
-            val contentCount = fileUiState.contentCount ?: 0
+            val contentCount = fileUiState.contentCount
 
             Text(
                 text = "${round((positionHistory.toFloat() / contentCount.toFloat()) * 100).toInt()}％ ${fileUiState.fileSize.formatBytes()} ${fileUiState.contentCount}ファイル",
