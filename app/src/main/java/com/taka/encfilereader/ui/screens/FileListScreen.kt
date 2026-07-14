@@ -54,7 +54,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import coil3.compose.SubcomposeAsyncImage
 import com.taka.encfilereader.ui.components.FileItem
 import com.taka.encfilereader.ui.components.OpenDialog
@@ -70,9 +69,9 @@ import kotlin.math.round
 fun FileListScreen(
     viewModel: FileListViewModel,
     columns: Int,
-    navController: NavController,
-    index: Int,
-    historyViewModel: HistoryViewModel
+    manifestIndex: Int,
+    historyViewModel: HistoryViewModel,
+    onNavigate: (route: String)-> Unit
 ){
     val items by viewModel.uiState.collectAsState()
     val title by viewModel.title.collectAsState()
@@ -83,7 +82,7 @@ fun FileListScreen(
     val histories by historyViewModel.histories.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.loadFileList(index)
+        viewModel.loadFileList(manifestIndex)
     }
 
     LaunchedEffect(drawerState.isOpen) {
@@ -137,7 +136,7 @@ fun FileListScreen(
                                 onClick = {
                                     isShowMenu = false
 
-                                    navController.navigate("setting")
+                                    onNavigate("setting")
                                 }
                             )
                         }
@@ -195,7 +194,8 @@ fun FileListScreen(
                                         .padding(3.dp)
                                         .clickable {
                                             coroutineScope.launch { drawerState.close() }
-                                            navController.navigate("reader/${item.manifestIndex}/${item.fileIndex}")
+
+                                            onNavigate("reader/${item.manifestIndex}/${item.fileIndex}")
                                         },
                                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                                 ) {
@@ -339,7 +339,7 @@ fun FileListScreen(
                                 coroutineScope.launch {
                                     if (item.positionHistory != null) {
                                         val imageData = viewModel.getContentData(
-                                            index,
+                                            manifestIndex,
                                             item.fileIndex,
                                             item.positionHistory
                                         )
@@ -348,7 +348,7 @@ fun FileListScreen(
                                             imageData = imageData
                                         )
                                     } else {
-                                        navController.navigate("reader/${index}/${items.indexOf(item)}")
+                                        onNavigate("reader/${manifestIndex}/${items.indexOf(item)}")
                                     }
                                 }
                             }
@@ -358,11 +358,11 @@ fun FileListScreen(
 
                 if (selectedFileState != null) {
                     OpenDialog(
-                        uiState = selectedFileState,
+                        fileUiState = selectedFileState,
                         onContinue = {
                             selectedFileState?.let { data ->
                                 selectedFileState = null
-                                navController.navigate("reader/${index}/${data.fileIndex}")
+                                onNavigate("reader/${manifestIndex}/${data.fileIndex}")
                             }
                         },
                         onBegin = {
@@ -370,10 +370,10 @@ fun FileListScreen(
                                 selectedFileState = null
 
                                 coroutineScope.launch {
-                                    viewModel.resetHistory(index, data.fileIndex)
+                                    viewModel.resetHistory(manifestIndex, data.fileIndex)
                                 }
 
-                                navController.navigate("reader/${index}/${data.fileIndex}")
+                                onNavigate("reader/${manifestIndex}/${data.fileIndex}")
                             }
                         },
                         onCancel = {

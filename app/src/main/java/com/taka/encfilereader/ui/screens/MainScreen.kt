@@ -98,21 +98,31 @@ fun MainScreen(modifier: Modifier = Modifier) {
         composable("manifestList") {
             val viewModel: ManifestListViewModel = koinViewModel()
 
-            ManifestListScreen(viewModel, storageManager.displayColumns, historyViewModel, navController)
+            ManifestListScreen(
+                viewModel,
+                storageManager.displayColumns,
+                historyViewModel,
+                onNavigate = { route ->
+                    navController.navigate(route)
+                }
+            )
         }
         composable(
-            "fileList/{index}",
-            arguments = listOf(navArgument("index") { type = NavType.IntType })
+            "fileList/{manifestIndex}",
+            arguments = listOf(navArgument("manifestIndex") { type = NavType.IntType })
         ) { backStackEntry ->
-            val index = backStackEntry.arguments?.getInt("index") ?: 0
+            val manifestIndex = backStackEntry.arguments?.getInt("manifestIndex") ?: 0
 
             val viewModel: FileListViewModel = koinViewModel()
 
             FileListScreen(
                 viewModel,
                 storageManager.displayColumns,
-                navController,
-                index,historyViewModel
+                manifestIndex,
+                historyViewModel,
+                onNavigate = { route ->
+                    navController.navigate(route)
+                }
             )
         }
         composable(
@@ -129,10 +139,12 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
             ReaderScreen(
                 viewModel,
-                navController,
                 manifestIndex,
                 fileIndex,
-                historyViewModel
+                historyViewModel,
+                onNavigate = { route ->
+                    navController.navigate(route)
+                }
             )
         }
     }

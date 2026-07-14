@@ -63,7 +63,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import coil3.compose.SubcomposeAsyncImage
 import com.taka.encfilereader.ui.components.Content
 import com.taka.encfilereader.ui.views.HistoryViewModel
@@ -76,10 +75,10 @@ import kotlin.math.round
 @Composable
 fun ReaderScreen(
     viewModel: ReaderViewModel,
-    navController: NavController,
     manifestIndex: Int,
     fileIndex: Int,
-    historyViewModel: HistoryViewModel
+    historyViewModel: HistoryViewModel,
+    onNavigate: (route: String)-> Unit
 ){
     val uiState by viewModel.uiState.collectAsState()
 
@@ -165,7 +164,7 @@ fun ReaderScreen(
                                 onClick = {
                                     isShowMenu = false
 
-                                    navController.navigate("setting")
+                                    onNavigate("setting")
                                 }
                             )
                         }
@@ -223,7 +222,7 @@ fun ReaderScreen(
                                         .padding(3.dp)
                                         .clickable {
                                             coroutineScope.launch { drawerState.close() }
-                                            navController.navigate("reader/${item.manifestIndex}/${item.fileIndex}")
+                                            onNavigate("reader/${item.manifestIndex}/${item.fileIndex}")
                                         },
                                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                                 ) {
