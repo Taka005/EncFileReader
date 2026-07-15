@@ -18,6 +18,15 @@ class ReaderViewModel(
 
     private val loadingJobs = mutableMapOf<Int, Job>()
 
+    fun isExistNextFile(manifestIndex: Int,fileIndex: Int): Boolean{
+        val currentStorage = manager.storage ?: return false
+        val manifest = currentStorage.getManifest(manifestIndex).getOrNull() ?: return false
+
+        manifest.getFileMetaData(fileIndex + 1).getOrNull() ?: return false
+
+        return true
+    }
+
     fun initialize(manifestIndex: Int, fileIndex: Int) {
         val currentStorage = manager.storage ?: return
         val manifest = currentStorage.getManifest(manifestIndex).getOrNull() ?: return

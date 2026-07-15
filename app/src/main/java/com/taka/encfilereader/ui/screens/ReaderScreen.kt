@@ -88,6 +88,7 @@ fun ReaderScreen(
         initialPage = uiState.position,
         pageCount = { uiState.pageCount }
     )
+    val isLastPage = pagerState.currentPage == (uiState.pageCount - 1)
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val histories by historyViewModel.histories.collectAsState()
@@ -403,6 +404,28 @@ fun ReaderScreen(
                             },
                             valueRange = 0f..(uiState.pageCount - 1).coerceAtLeast(0).toFloat()
                         )
+                    }
+                }
+
+                if (isLastPage && uiState.pageCount > 0&&viewModel.isExistNextFile(manifestIndex, fileIndex)) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Card(
+                            modifier = Modifier
+                                .padding(32.dp)
+                                .clickable {
+                                    onNavigate("reader/${manifestIndex}/${fileIndex + 1}")
+                                },
+                            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                        ) {
+                            Text(
+                                text = "次へ進む",
+                                modifier = Modifier.padding(24.dp),
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                        }
                     }
                 }
             }
