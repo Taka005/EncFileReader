@@ -80,6 +80,7 @@ fun ManifestListScreen(
 
     LaunchedEffect(Unit) {
         viewModel.loadManifestList()
+        historyViewModel.loadHistories()
     }
 
     LaunchedEffect(drawerState.isOpen) {
@@ -128,16 +129,18 @@ fun ManifestListScreen(
                             expanded = isShowMenu,
                             onDismissRequest = { isShowMenu = false }
                         ) {
-                            DropdownMenuItem(
-                                text = { Text("最新の履歴") },
-                                onClick = {
-                                    isShowMenu = false
+                            if(histories.count() != 0) {
+                                DropdownMenuItem(
+                                    text = { Text("最新の履歴") },
+                                    onClick = {
+                                        isShowMenu = false
 
-                                    val latestHistory = histories.last()
+                                        val latestHistory = histories.last()
 
-                                    onNavigate("reader/${latestHistory.manifestIndex}/${latestHistory.fileIndex}")
-                                }
-                            )
+                                        onNavigate("reader/${latestHistory.manifestIndex}/${latestHistory.fileIndex}")
+                                    }
+                                )
+                            }
 
                             DropdownMenuItem(
                                 text = { Text("設定") },

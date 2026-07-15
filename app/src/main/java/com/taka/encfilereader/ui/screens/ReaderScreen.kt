@@ -95,6 +95,7 @@ fun ReaderScreen(
 
     LaunchedEffect(Unit) {
         viewModel.initialize(manifestIndex,fileIndex)
+        historyViewModel.loadHistories()
     }
 
     LaunchedEffect(drawerState.isOpen) {
@@ -371,7 +372,7 @@ fun ReaderScreen(
                     val pageCount = uiState.pageCount
 
                     Text(
-                        text = "$position / $pageCount ${round((position.toFloat()/pageCount.toFloat())*100)}％",
+                        text = "$position/$pageCount ${round((position.toFloat()/pageCount.toFloat())*100).toInt()}％",
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                         style = MaterialTheme.typography.bodyMedium
                     )

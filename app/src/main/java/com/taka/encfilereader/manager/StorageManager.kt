@@ -126,6 +126,7 @@ class StorageManager(context: Context){
 
     suspend fun resetCredentials(){
         settingsManager.reset()
+        historyManager.reset()
 
         _storage = null
         _password = null

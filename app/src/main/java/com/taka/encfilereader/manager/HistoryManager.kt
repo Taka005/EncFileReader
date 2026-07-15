@@ -56,4 +56,11 @@ class HistoryManager(private val context: Context) {
             }.sortedByDescending { it.timestamp }
         }.first()
     }
+
+    suspend fun reset() {
+        context.dataStore.edit { prefs ->
+            prefs.clear()
+        }
+    }
+
 }
