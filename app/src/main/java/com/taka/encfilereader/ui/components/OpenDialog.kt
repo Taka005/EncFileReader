@@ -76,7 +76,7 @@ fun OpenDialog(
                 val contentCount = fileUiState?.contentCount ?: 0
 
                 Text(
-                    text = "${positionHistory + 1}/${contentCount} ${round((positionHistory.toFloat()/contentCount.toFloat())*100).toInt()}％",
+                    text = "${positionHistory + 1}/${contentCount} ${round(((positionHistory + 1).toFloat()/contentCount.toFloat())*100).toInt()}％",
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 0.dp),

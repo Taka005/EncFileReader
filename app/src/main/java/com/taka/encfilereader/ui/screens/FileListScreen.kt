@@ -132,6 +132,17 @@ fun FileListScreen(
                             onDismissRequest = { isShowMenu = false }
                         ) {
                             DropdownMenuItem(
+                                text = { Text("最新の履歴") },
+                                onClick = {
+                                    isShowMenu = false
+
+                                    val latestHistory = histories.last()
+
+                                    onNavigate("reader/${latestHistory.manifestIndex}/${latestHistory.fileIndex}")
+                                }
+                            )
+
+                            DropdownMenuItem(
                                 text = { Text("設定") },
                                 onClick = {
                                     isShowMenu = false
@@ -265,7 +276,7 @@ fun FileListScreen(
                                             Text(
                                                 text = "${item.position + 1}/${item.contentCount} ${
                                                     round(
-                                                        (item.position.toFloat() / item.contentCount.toFloat()) * 100
+                                                        ((item.position + 1).toFloat() / item.contentCount.toFloat()) * 100
                                                     ).toInt()
                                                 }％",
                                                 modifier = Modifier

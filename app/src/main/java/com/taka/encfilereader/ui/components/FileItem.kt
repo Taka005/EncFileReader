@@ -71,7 +71,7 @@ fun FileItem(
 
             val positionHistory = fileUiState.positionHistory
             val contentCount = fileUiState.contentCount
-            val progress = if(positionHistory != null) "${round((positionHistory.toFloat() / contentCount.toFloat()) * 100).toInt()} " else ""
+            val progress = if(positionHistory != null) "${round(((positionHistory + 1).toFloat() / contentCount.toFloat()) * 100).toInt()}％ " else ""
 
             Text(
                 text = "${progress}${fileUiState.fileSize.formatBytes()} ${contentCount}ファイル",

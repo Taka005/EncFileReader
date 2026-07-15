@@ -292,7 +292,7 @@ fun ReaderScreen(
                                             Text(
                                                 text = "${item.position + 1}/${item.contentCount} ${
                                                     round(
-                                                        (item.position.toFloat() / item.contentCount.toFloat()) * 100
+                                                        ((item.position + 1).toFloat() / item.contentCount.toFloat()) * 100
                                                     ).toInt()
                                                 }％",
                                                 modifier = Modifier
@@ -366,8 +366,11 @@ fun ReaderScreen(
                         .background(Color.Black.copy(alpha = 0f)),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    val position = sliderValue.toInt() + 1
+                    val pageCount = uiState.pageCount
+
                     Text(
-                        text = "${sliderValue.toInt() + 1} / ${uiState.pageCount}",
+                        text = "$position / $pageCount ${round((position.toFloat()/pageCount.toFloat())*100)}％",
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                         style = MaterialTheme.typography.bodyMedium
                     )
