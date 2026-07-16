@@ -102,8 +102,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 viewModel,
                 storageManager.displayColumns,
                 historyViewModel,
-                onNavigate = { route ->
-                    navController.navigate(route)
+                onNavigate = { route, navOptions ->
+                    navController.navigate(route,navOptions)
                 }
             )
         }
@@ -120,8 +120,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 storageManager.displayColumns,
                 manifestIndex,
                 historyViewModel,
-                onNavigate = { route ->
-                    navController.navigate(route)
+                onNavigate = { route, navOptions ->
+                    navController.navigate(route,navOptions)
                 }
             )
         }
@@ -142,8 +142,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 manifestIndex,
                 fileIndex,
                 historyViewModel,
-                onNavigate = { route ->
-                    navController.navigate(route)
+                onNavigate = { route, navOptions ->
+                    navController.navigate(route,navOptions)
                 }
             )
         }

@@ -54,6 +54,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavOptions
+import androidx.navigation.navOptions
 import coil3.compose.SubcomposeAsyncImage
 import com.taka.encfilereader.ui.components.FileItem
 import com.taka.encfilereader.ui.components.OpenDialog
@@ -71,7 +73,7 @@ fun FileListScreen(
     columns: Int,
     manifestIndex: Int,
     historyViewModel: HistoryViewModel,
-    onNavigate: (route: String)-> Unit
+    onNavigate: (route: String, navOptions: NavOptions?)-> Unit
 ){
     val items by viewModel.uiState.collectAsState()
     val title by viewModel.title.collectAsState()
@@ -140,7 +142,13 @@ fun FileListScreen(
 
                                         val latestHistory = histories.last()
 
-                                        onNavigate("reader/${latestHistory.manifestIndex}/${latestHistory.fileIndex}")
+                                        onNavigate("fileList/${latestHistory.manifestIndex}",
+                                            navOptions {
+                                                popUpTo(0) { inclusive = true }
+                                            }
+                                        )
+
+                                        onNavigate("reader/${latestHistory.manifestIndex}/${latestHistory.fileIndex}",null)
                                     }
                                 )
                             }
@@ -150,7 +158,7 @@ fun FileListScreen(
                                 onClick = {
                                     isShowMenu = false
 
-                                    onNavigate("setting")
+                                    onNavigate("setting",null)
                                 }
                             )
                         }
@@ -209,7 +217,13 @@ fun FileListScreen(
                                         .clickable {
                                             coroutineScope.launch { drawerState.close() }
 
-                                            onNavigate("reader/${item.manifestIndex}/${item.fileIndex}")
+                                            onNavigate("fileList/${item.manifestIndex}",
+                                                navOptions {
+                                                    popUpTo(0) { inclusive = true }
+                                                }
+                                            )
+
+                                            onNavigate("reader/${item.manifestIndex}/${item.fileIndex}",null)
                                         },
                                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                                 ) {
@@ -362,7 +376,7 @@ fun FileListScreen(
                                             imageData = imageData
                                         )
                                     } else {
-                                        onNavigate("reader/${manifestIndex}/${items.indexOf(item)}")
+                                        onNavigate("reader/${manifestIndex}/${items.indexOf(item)}",null)
                                     }
                                 }
                             }
@@ -376,7 +390,7 @@ fun FileListScreen(
                         onContinue = {
                             selectedFileState?.let { data ->
                                 selectedFileState = null
-                                onNavigate("reader/${manifestIndex}/${data.fileIndex}")
+                                onNavigate("reader/${manifestIndex}/${data.fileIndex}",null)
                             }
                         },
                         onBegin = {
@@ -387,7 +401,7 @@ fun FileListScreen(
                                     viewModel.resetHistory(manifestIndex, data.fileIndex)
                                 }
 
-                                onNavigate("reader/${manifestIndex}/${data.fileIndex}")
+                                onNavigate("reader/${manifestIndex}/${data.fileIndex}",null)
                             }
                         },
                         onCancel = {

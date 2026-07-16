@@ -63,6 +63,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavOptions
+import androidx.navigation.navOptions
 import coil3.compose.SubcomposeAsyncImage
 import com.taka.encfilereader.ui.components.Content
 import com.taka.encfilereader.ui.views.HistoryViewModel
@@ -78,7 +80,7 @@ fun ReaderScreen(
     manifestIndex: Int,
     fileIndex: Int,
     historyViewModel: HistoryViewModel,
-    onNavigate: (route: String)-> Unit
+    onNavigate: (route: String, navOptions: NavOptions?)-> Unit
 ){
     val uiState by viewModel.uiState.collectAsState()
 
@@ -166,7 +168,7 @@ fun ReaderScreen(
                                 onClick = {
                                     isShowMenu = false
 
-                                    onNavigate("setting")
+                                    onNavigate("setting",null)
                                 }
                             )
                         }
@@ -224,7 +226,14 @@ fun ReaderScreen(
                                         .padding(3.dp)
                                         .clickable {
                                             coroutineScope.launch { drawerState.close() }
-                                            onNavigate("reader/${item.manifestIndex}/${item.fileIndex}")
+
+                                            onNavigate("fileList/${item.manifestIndex}",
+                                                navOptions {
+                                                    popUpTo(0) { inclusive = true }
+                                                }
+                                            )
+
+                                            onNavigate("reader/${item.manifestIndex}/${item.fileIndex}",null)
                                         },
                                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                                 ) {
@@ -410,14 +419,22 @@ fun ReaderScreen(
 
                 if (isLastPage && uiState.pageCount > 0&&viewModel.isExistNextFile(manifestIndex, fileIndex)) {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.5f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Card(
                             modifier = Modifier
                                 .padding(32.dp)
                                 .clickable {
-                                    onNavigate("reader/${manifestIndex}/${fileIndex + 1}")
+                                    onNavigate("fileList/${manifestIndex}",
+                                        navOptions {
+                                            popUpTo(0) { inclusive = true }
+                                        }
+                                    )
+
+                                    onNavigate("reader/${manifestIndex}/${fileIndex + 1}", null)
                                 },
                             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                         ) {
