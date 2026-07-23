@@ -227,11 +227,13 @@ fun ReaderScreen(
                                         .clickable {
                                             coroutineScope.launch { drawerState.close() }
 
-                                            onNavigate("fileList/${item.manifestIndex}",
+                                            onNavigate("manifestList",
                                                 navOptions {
                                                     popUpTo(0) { inclusive = true }
                                                 }
                                             )
+
+                                            onNavigate("fileList/${item.manifestIndex}", null)
 
                                             onNavigate("reader/${item.manifestIndex}/${item.fileIndex}",null)
                                         },

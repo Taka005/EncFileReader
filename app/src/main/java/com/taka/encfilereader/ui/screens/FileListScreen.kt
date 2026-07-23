@@ -142,11 +142,13 @@ fun FileListScreen(
 
                                         val latestHistory = histories.last()
 
-                                        onNavigate("fileList/${latestHistory.manifestIndex}",
+                                        onNavigate("manifestList",
                                             navOptions {
                                                 popUpTo(0) { inclusive = true }
                                             }
                                         )
+
+                                        onNavigate("fileList/${latestHistory.manifestIndex}",null)
 
                                         onNavigate("reader/${latestHistory.manifestIndex}/${latestHistory.fileIndex}",null)
                                     }
@@ -217,11 +219,13 @@ fun FileListScreen(
                                         .clickable {
                                             coroutineScope.launch { drawerState.close() }
 
-                                            onNavigate("fileList/${item.manifestIndex}",
+                                            onNavigate("manifestList",
                                                 navOptions {
                                                     popUpTo(0) { inclusive = true }
                                                 }
                                             )
+
+                                            onNavigate("fileList/${item.manifestIndex}", null)
 
                                             onNavigate("reader/${item.manifestIndex}/${item.fileIndex}",null)
                                         },
