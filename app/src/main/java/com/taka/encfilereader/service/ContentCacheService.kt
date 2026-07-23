@@ -73,6 +73,7 @@ class ContentCacheService(private val cacheDir: File){
 
                 commit()
             }
+
             diskCache.flush()
         } catch (e: Exception) {
             e.printStackTrace()

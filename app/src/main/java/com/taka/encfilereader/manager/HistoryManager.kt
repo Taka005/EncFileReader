@@ -62,5 +62,4 @@ class HistoryManager(private val context: Context) {
             prefs.clear()
         }
     }
-
 }
