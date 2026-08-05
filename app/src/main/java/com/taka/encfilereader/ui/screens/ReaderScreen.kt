@@ -430,11 +430,13 @@ fun ReaderScreen(
                             modifier = Modifier
                                 .padding(32.dp)
                                 .clickable {
-                                    onNavigate("fileList/${manifestIndex}",
+                                    onNavigate("manifestList",
                                         navOptions {
                                             popUpTo(0) { inclusive = true }
                                         }
                                     )
+
+                                    onNavigate("fileList/${manifestIndex}",null)
 
                                     onNavigate("reader/${manifestIndex}/${fileIndex + 1}", null)
                                 },
