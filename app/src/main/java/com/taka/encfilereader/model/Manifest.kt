@@ -18,12 +18,12 @@ class Manifest (val dirName: String){
         data: ByteArray,
         password: String
     ): Result<Unit>{
-        if (data.size < 44) return Result.failure(IllegalArgumentException("データサイズ不足: ${data.size}"))
+        if (data.size < DATA_OFFSET) return Result.failure(IllegalArgumentException("データサイズ不足: ${data.size}"))
 
-        val salt: ByteArray = data.sliceArray(0 until 16)
-        val iv: ByteArray = data.sliceArray(16 until 28)
-        val tag: ByteArray = data.sliceArray(28 until 44)
-        val rawData: ByteArray = data.sliceArray(44 until data.size)
+        val salt = data.copyOfRange(SALT_OFFSET, IV_OFFSET)
+        val iv = data.copyOfRange(IV_OFFSET, TAG_OFFSET)
+        val tag = data.copyOfRange(TAG_OFFSET, DATA_OFFSET)
+        val rawData = data.copyOfRange(DATA_OFFSET, data.size)
 
         this.key = createKey(salt,password).getOrElse { error ->
             return Result.failure(error)
@@ -87,5 +87,16 @@ class Manifest (val dirName: String){
 
             SecretKeySpec(factory.generateSecret(spec).encoded, "AES")
         }
+    }
+
+    companion object {
+        private const val SALT_LENGTH = 16
+        private const val IV_LENGTH = 12
+        private const val TAG_LENGTH = 16
+        private const val SALT_OFFSET = 0
+        
+        private const val IV_OFFSET = SALT_OFFSET + SALT_LENGTH
+        private const val TAG_OFFSET = IV_OFFSET + IV_LENGTH
+        private const val DATA_OFFSET = TAG_OFFSET + TAG_LENGTH
     }
 }

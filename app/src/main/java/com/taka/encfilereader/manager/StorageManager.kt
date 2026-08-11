@@ -15,7 +15,7 @@ class StorageManager(context: Context){
     private val settingsManager = SettingsManager(context)
     private var _storage: StorageService? = null
     private var _password: String? = null
-    private var _displayColumns: Int = 2
+    private var _displayColumns: Int = DEFAULT_DISPLAY_COLUMNS
     private val lock = Mutex()
     val manifestCacheService = ManifestCacheService(context.cacheDir)
     val contentCacheService = ContentCacheService(context.cacheDir)
@@ -30,7 +30,7 @@ class StorageManager(context: Context){
         get() = _displayColumns
 
     val maxRequests: Int
-        get() = storage?.maxRequests ?: 50
+        get() = storage?.maxRequests ?: DEFAULT_MAX_REQUESTS
 
     suspend fun updateDisplayColumns(value: Int) {
         if (value <= 0) return
@@ -131,8 +131,8 @@ class StorageManager(context: Context){
         _storage = null
         _password = null
 
-        updateDisplayColumns(2)
-        updateMaxRequests(50)
+        updateDisplayColumns(DEFAULT_DISPLAY_COLUMNS)
+        updateMaxRequests(DEFAULT_MAX_REQUESTS)
     }
 
     suspend fun getContentData(
@@ -145,10 +145,8 @@ class StorageManager(context: Context){
 
         val cacheKey = "${manifestIndex}_${fileIndex}_${contentIndex}"
 
-        val cachedData = contentCacheService.get(cacheKey)
-
-        if (cachedData != null) {
-            return@withContext Result.success(cachedData)
+        contentCacheService.get(cacheKey)?.let {
+            return@withContext Result.success(it)
         }
 
         lock.withLock {
@@ -158,12 +156,17 @@ class StorageManager(context: Context){
 
             contentCacheService.save(cacheKey, data, isDiskCache)
 
-            return@withContext Result.success(data)
+            Result.success(data)
         }
     }
 
     fun close(){
         contentCacheService.close()
         manifestCacheService.close()
+    }
+
+    companion object {
+        private const val DEFAULT_DISPLAY_COLUMNS = 2
+        private const val DEFAULT_MAX_REQUESTS = 50
     }
 }
