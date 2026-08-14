@@ -1,6 +1,5 @@
 package com.taka.encfilereader.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -13,12 +12,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    onPrimary = Color.Black,
-    secondary = PurpleGrey80,
+    primary = Purple40,
+    onPrimary = Color.White,
+    secondary = PurpleGrey40,
     primaryContainer = Purple40,
-    tertiary = Pink80,
-    background = Color.Black
+    tertiary = Pink40,
+    background = Color.White,
+    surface = Color(0x80FFFFFF)
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -26,9 +26,9 @@ private val LightColorScheme = lightColorScheme(
     onPrimary = Color.White,
     secondary = PurpleGrey40,
     primaryContainer = Purple40,
-    tertiary = Pink40 ,
+    tertiary = Pink40,
     background = Color.White,
-    surface = Color(0x80FFFFFF),
+    surface = Color(0x80FFFFFF)
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
