@@ -94,6 +94,7 @@ fun ReaderScreen(
         initialPage = uiState.position,
         pageCount = { uiState.pageCount }
     )
+    var cacheInnerPadding by remember { mutableStateOf(PaddingValues.Zero) }
     val isLastPage = pagerState.currentPage == (uiState.pageCount - 1)
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -187,13 +188,17 @@ fun ReaderScreen(
             }
         }
     ) { innerPadding ->
+        if (isUiVisible && innerPadding.calculateTopPadding() > 10.dp) {
+            cacheInnerPadding = innerPadding
+        }
+
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
                 ModalDrawerSheet(
                     modifier = Modifier
                         .fillMaxWidth(fraction = 0.7f)
-                        .padding(innerPadding),
+                        .padding(cacheInnerPadding),
                     windowInsets = WindowInsets(0, 0, 0, 0)
                 ){
                     Text(
@@ -359,7 +364,7 @@ fun ReaderScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
+                    .padding(cacheInnerPadding)
             ) {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                     HorizontalPager(

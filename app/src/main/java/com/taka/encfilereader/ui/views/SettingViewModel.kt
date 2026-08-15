@@ -43,6 +43,12 @@ class SettingViewModel(
         loadData()
     }
 
+    fun clearHistory(){
+        viewModelScope.launch {
+            manager.historyManager.reset()
+        }
+    }
+
     fun clearContentCache(){
         manager.contentCacheService.clearAll()
         loadData()

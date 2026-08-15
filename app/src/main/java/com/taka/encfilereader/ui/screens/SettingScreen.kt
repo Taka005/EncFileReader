@@ -159,6 +159,19 @@ fun SettingScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             ListItem(
+                headlineContent = { Text("履歴を削除") },
+                trailingContent = {
+                    Button(
+                        onClick = {
+                            viewModel.clearHistory()
+                        }
+                    ) {
+                        Text("リセット")
+                    }
+                }
+            )
+
+            ListItem(
                 headlineContent = { Text("初期化") },
                 supportingContent = {
                     Text("全ての設定を削除します")

@@ -6,11 +6,7 @@ plugins {
 
 android {
     namespace = "com.taka.encfilereader"
-    compileSdk {
-        version = release(37) {
-            minorApiLevel = 0
-        }
-    }
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.taka.encfilereader"
