@@ -1,5 +1,8 @@
 package com.taka.encfilereader.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -84,6 +87,7 @@ fun ReaderScreen(
 ){
     val uiState by viewModel.uiState.collectAsState()
 
+    var isUiVisible by remember { mutableStateOf(true) }
     var isShowMenu by remember { mutableStateOf(false) }
     var sliderValue by remember(uiState.position) { mutableFloatStateOf(uiState.position.toFloat()) }
     val pagerState = rememberPagerState(
@@ -124,57 +128,63 @@ fun ReaderScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(uiState.title ?: "") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            coroutineScope.launch {
-                                if (drawerState.isOpen) {
-                                    drawerState.close()
-                                } else {
-                                    drawerState.open()
+            AnimatedVisibility(
+                visible = isUiVisible,
+                enter = slideInVertically(initialOffsetY = { -it }),
+                exit = slideOutVertically(targetOffsetY = { -it })
+            ) {
+                CenterAlignedTopAppBar(
+                    title = { Text(uiState.title ?: "") },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    navigationIcon = {
+                        IconButton(
+                            onClick = {
+                                coroutineScope.launch {
+                                    if (drawerState.isOpen) {
+                                        drawerState.close()
+                                    } else {
+                                        drawerState.open()
+                                    }
                                 }
                             }
-                        }
-                    ){
-                        Icon(
-                            imageVector = Icons.Default.Menu,
-                            contentDescription = null
-                        )
-                    }
-                },
-                actions = {
-                    Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
-                        IconButton(onClick = { isShowMenu = !isShowMenu }) {
+                        ) {
                             Icon(
-                                Icons.Default.MoreVert,
+                                imageVector = Icons.Default.Menu,
                                 contentDescription = null
                             )
                         }
+                    },
+                    actions = {
+                        Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
+                            IconButton(onClick = { isShowMenu = !isShowMenu }) {
+                                Icon(
+                                    Icons.Default.MoreVert,
+                                    contentDescription = null
+                                )
+                            }
 
-                        DropdownMenu(
-                            expanded = isShowMenu,
-                            onDismissRequest = { isShowMenu = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text("設定") },
-                                onClick = {
-                                    isShowMenu = false
+                            DropdownMenu(
+                                expanded = isShowMenu,
+                                onDismissRequest = { isShowMenu = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("設定") },
+                                    onClick = {
+                                        isShowMenu = false
 
-                                    onNavigate("setting",null)
-                                }
-                            )
+                                        onNavigate("setting", null)
+                                    }
+                                )
+                            }
                         }
                     }
-                }
-            )
+                )
+            }
         }
     ) { innerPadding ->
         ModalNavigationDrawer(
@@ -359,63 +369,80 @@ fun ReaderScreen(
                     ) { pageIndex ->
                         val imageBytes = uiState.loadedImages[pageIndex]
 
-                        if (imageBytes != null) {
-                            Content(imageBytes)
-                        } else {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (imageBytes != null) {
+                                Content(
+                                    imageData = imageBytes,
+                                    onTap = { isUiVisible = !isUiVisible }
+                                )
+                            } else {
                                 CircularProgressIndicator()
                             }
                         }
                     }
                 }
 
-                Column(
+                AnimatedVisibility(
+                    visible = isUiVisible,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                        .background(Color.Black.copy(alpha = 0f)),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .fillMaxWidth(),
+                    enter = slideInVertically(initialOffsetY = { it }),
+                    exit = slideOutVertically(targetOffsetY = { it })
                 ) {
-                    val position = sliderValue.toInt() + 1
-                    val pageCount = uiState.pageCount
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .fillMaxWidth()
+                            .background(Color.Black.copy(alpha = 0f)),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        val position = sliderValue.toInt() + 1
+                        val pageCount = uiState.pageCount
 
-                    Text(
-                        text = "$position/$pageCount ${round((position.toFloat()/pageCount.toFloat())*100).toInt()}％",
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-
-                    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                        Slider(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                            colors = SliderDefaults.colors(
-                                thumbColor = Color.Gray,
-                                activeTrackColor = Color.Gray,
-                                inactiveTrackColor = Color.LightGray,
-                                activeTickColor = Color.Transparent,
-                                inactiveTickColor = Color.Transparent
-                            ),
-                            thumb = {
-                                SliderDefaults.Thumb(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    thumbSize = DpSize(20.dp, 20.dp),
-                                    colors = SliderDefaults.colors(thumbColor = Color.Gray)
-                                )
-                            },
-                            value = sliderValue,
-                            onValueChange = { newValue ->
-                                sliderValue = newValue
-                            },
-                            onValueChangeFinished = {
-                                viewModel.setPosition(manifestIndex, fileIndex, sliderValue.toInt())
-                            },
-                            valueRange = 0f..(uiState.pageCount - 1).coerceAtLeast(0).toFloat()
+                        Text(
+                            text = "$position/$pageCount ${round((position.toFloat() / pageCount.toFloat()) * 100).toInt()}％",
+                            modifier = Modifier.align(Alignment.CenterHorizontally),
+                            style = MaterialTheme.typography.bodyMedium
                         )
+
+                        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                            Slider(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp),
+                                colors = SliderDefaults.colors(
+                                    thumbColor = Color.Gray,
+                                    activeTrackColor = Color.Gray,
+                                    inactiveTrackColor = Color.LightGray,
+                                    activeTickColor = Color.Transparent,
+                                    inactiveTickColor = Color.Transparent
+                                ),
+                                thumb = {
+                                    SliderDefaults.Thumb(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        thumbSize = DpSize(20.dp, 20.dp),
+                                        colors = SliderDefaults.colors(thumbColor = Color.Gray)
+                                    )
+                                },
+                                value = sliderValue,
+                                onValueChange = { newValue ->
+                                    sliderValue = newValue
+                                },
+                                onValueChangeFinished = {
+                                    viewModel.setPosition(
+                                        manifestIndex,
+                                        fileIndex,
+                                        sliderValue.toInt()
+                                    )
+                                },
+                                valueRange = 0f..(uiState.pageCount - 1).coerceAtLeast(0).toFloat()
+                            )
+                        }
                     }
                 }
 

@@ -1,5 +1,6 @@
 package com.taka.encfilereader.ui.components
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,6 +10,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -21,7 +23,10 @@ import net.engawapg.lib.zoomable.zoomable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Content(imageData: ByteArray){
+fun Content(
+    imageData: ByteArray,
+    onTap: () -> Unit
+){
     val zoomState = rememberZoomState()
 
     SubcomposeAsyncImage(
@@ -38,7 +43,12 @@ fun Content(imageData: ByteArray){
                 enableOneFingerZoom = false,
                 scrollGesturePropagation = ScrollGesturePropagation.NotZoomed,
                 onDoubleTap = {}
-            ),
+            )
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = { onTap() }
+                )
+            },
         contentScale = ContentScale.Fit,
         error = {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
