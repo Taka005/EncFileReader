@@ -4,21 +4,38 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.taka.encfilereader.manager.StorageManager
 import com.taka.encfilereader.ui.states.FileUiState
+import com.taka.encfilereader.ui.states.ManifestUiState
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlin.collections.emptyList
 
 class FileListViewModel(
     private val manager: StorageManager
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow<List<FileUiState>>(emptyList())
-    val uiState = _uiState.asStateFlow()
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery = _searchQuery.asStateFlow()
 
     private val _title: MutableStateFlow<String?> = MutableStateFlow(null)
     val title = _title.asStateFlow()
+
+    private val _uiState = MutableStateFlow<List<FileUiState>>(emptyList())
+    val uiState = combine(_uiState, _searchQuery) { items, query ->
+        if (query.isBlank()) {
+            items
+        } else {
+            items.filter { it.fileName.contains(query, ignoreCase = true) }
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
 
     suspend fun resetHistory(manifestIndex: Int, fileIndex: Int){
         manager.historyManager.savePosition(manifestIndex, fileIndex,0)
@@ -67,5 +84,9 @@ class FileListViewModel(
                 fileUi.copy(imageData = loadedData)
             }
         }
+    }
+
+    fun updateSearchQuery(query: String) {
+        _searchQuery.value = query
     }
 }

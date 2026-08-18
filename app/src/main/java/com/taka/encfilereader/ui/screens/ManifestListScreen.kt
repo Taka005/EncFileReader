@@ -1,5 +1,6 @@
 package com.taka.encfilereader.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -86,6 +87,11 @@ fun ManifestListScreen(
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val histories by historyViewModel.histories.collectAsState()
+
+    BackHandler(isSearching) {
+        isSearching = !isSearching
+        viewModel.updateSearchQuery("")
+    }
 
     LaunchedEffect(Unit) {
         viewModel.updateSearchQuery("")

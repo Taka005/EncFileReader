@@ -1,5 +1,6 @@
 package com.taka.encfilereader.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -84,13 +85,19 @@ fun FileListScreen(
     val title by viewModel.title.collectAsState()
     var isShowMenu by remember { mutableStateOf(false) }
     var isSearching by remember { mutableStateOf(false) }
-    var searchQuery by remember { mutableStateOf("") }
+    val searchQuery by viewModel.searchQuery.collectAsState()
     var selectedFileState by remember { mutableStateOf<FileUiState?>(null) }
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val histories by historyViewModel.histories.collectAsState()
 
+    BackHandler(isSearching) {
+        isSearching = !isSearching
+        viewModel.updateSearchQuery("")
+    }
+
     LaunchedEffect(Unit) {
+        viewModel.updateSearchQuery("")
         viewModel.loadFileList(manifestIndex)
         historyViewModel.loadHistories()
     }
@@ -107,7 +114,9 @@ fun FileListScreen(
                     if (isSearching) {
                         TextField(
                             value = searchQuery,
-                            onValueChange = { searchQuery = it },
+                            onValueChange = { query ->
+                                viewModel.updateSearchQuery(query)
+                            },
                             placeholder = {
                                 Text(
                                     text = "検索...",
@@ -161,7 +170,7 @@ fun FileListScreen(
                         isSearching = !isSearching
 
                         if (!isSearching) {
-                            searchQuery = ""
+                            viewModel.updateSearchQuery("")
                         }
                     }) {
                         Icon(
