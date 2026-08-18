@@ -259,22 +259,23 @@ fun FileListScreen(
                             contentPadding = PaddingValues(2.dp)
                         ){
                             items(histories) { item ->
-                                HistoryItem(
-                                    item,
-                                    {
-                                        coroutineScope.launch { drawerState.close() }
+                                HistoryItem(item) {
+                                    coroutineScope.launch { drawerState.close() }
 
-                                        onNavigate("manifestList",
-                                            navOptions {
-                                                popUpTo(0) { inclusive = true }
-                                            }
-                                        )
+                                    onNavigate(
+                                        "manifestList",
+                                        navOptions {
+                                            popUpTo(0) { inclusive = true }
+                                        }
+                                    )
 
-                                        onNavigate("fileList/${item.manifestIndex}", null)
+                                    onNavigate("fileList/${item.manifestIndex}", null)
 
-                                        onNavigate("reader/${item.manifestIndex}/${item.fileIndex}",null)
-                                    }
-                                )
+                                    onNavigate(
+                                        "reader/${item.manifestIndex}/${item.fileIndex}",
+                                        null
+                                    )
+                                }
                             }
                         }
                     }
