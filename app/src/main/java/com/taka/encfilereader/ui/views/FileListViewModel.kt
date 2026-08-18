@@ -42,6 +42,7 @@ class FileListViewModel(
                 val file = manifest.getFileMetaData(i).getOrNull()
 
                 FileUiState(
+                    manifestIndex = manifestIndex,
                     fileIndex = i,
                     fileName = file?.originalFileName ?: "不明",
                     contentCount = file?.contentCount ?: 0,

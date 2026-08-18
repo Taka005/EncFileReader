@@ -48,7 +48,7 @@ fun FileItem(
                     .data(fileUiState.imageData)
                     .memoryCachePolicy(CachePolicy.ENABLED)
                     .diskCachePolicy(CachePolicy.DISABLED)
-                    .memoryCacheKey("file_${fileUiState.fileIndex}")
+                    .memoryCacheKey("file_${fileUiState.manifestIndex}_${fileUiState.fileIndex}")
                     .crossfade(true)
                     .build(),
                 contentDescription = null,

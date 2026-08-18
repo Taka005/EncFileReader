@@ -82,12 +82,13 @@ fun ManifestListScreen(
     val items by viewModel.uiState.collectAsState()
     var isShowMenu by remember { mutableStateOf(false) }
     var isSearching by remember { mutableStateOf(false) }
-    var searchQuery by remember { mutableStateOf("") }
+    val searchQuery by viewModel.searchQuery.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val histories by historyViewModel.histories.collectAsState()
 
     LaunchedEffect(Unit) {
+        viewModel.updateSearchQuery("")
         viewModel.loadManifestList()
         historyViewModel.loadHistories()
     }
@@ -104,7 +105,9 @@ fun ManifestListScreen(
                     if (isSearching) {
                         TextField(
                             value = searchQuery,
-                            onValueChange = { searchQuery = it },
+                            onValueChange = { query ->
+                                viewModel.updateSearchQuery(query)
+                            },
                             placeholder = {
                                 Text(
                                     text = "検索...",
@@ -123,7 +126,7 @@ fun ManifestListScreen(
                                 unfocusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
                                 cursorColor = MaterialTheme.colorScheme.onPrimary,
                             ),
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
                         )
                     } else {
                         Text(stringResource(R.string.app_name))
@@ -158,7 +161,7 @@ fun ManifestListScreen(
                         isSearching = !isSearching
 
                         if (!isSearching) {
-                            searchQuery = ""
+                            viewModel.updateSearchQuery("")
                         }
                     }) {
                         Icon(
@@ -413,7 +416,7 @@ fun ManifestListScreen(
                         ManifestItem(
                             item,
                             onClick = {
-                                onNavigate("fileList/${items.indexOf(item)}",null)
+                                onNavigate("fileList/${item.manifestIndex}",null)
                             }
                         )
                     }
