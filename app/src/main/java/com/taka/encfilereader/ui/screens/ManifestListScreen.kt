@@ -65,6 +65,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.navOptions
 import coil3.compose.SubcomposeAsyncImage
 import com.taka.encfilereader.R
+import com.taka.encfilereader.ui.components.HistoryItem
 import com.taka.encfilereader.ui.components.ManifestItem
 import com.taka.encfilereader.ui.views.HistoryViewModel
 import com.taka.encfilereader.ui.views.ManifestListViewModel
@@ -266,126 +267,22 @@ fun ManifestListScreen(
                             contentPadding = PaddingValues(2.dp)
                         ){
                             items(histories) { item ->
-                                Card(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(3.dp)
-                                        .clickable {
-                                            coroutineScope.launch { drawerState.close() }
+                                HistoryItem(
+                                    item,
+                                    {
+                                        coroutineScope.launch { drawerState.close() }
 
-                                            onNavigate("manifestList",
-                                                navOptions {
-                                                    popUpTo(0) { inclusive = true }
-                                                }
-                                            )
-
-                                            onNavigate("fileList/${item.manifestIndex}", null)
-
-                                            onNavigate("reader/${item.manifestIndex}/${item.fileIndex}",null)
-                                        },
-                                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                                ) {
-                                    Row {
-                                        SubcomposeAsyncImage(
-                                            model = item.imageData,
-                                            contentDescription = null,
-                                            modifier = Modifier
-                                                .width(80.dp)
-                                                .aspectRatio(4f / 5f),
-                                            contentScale = ContentScale.Crop,
-                                            error = {
-                                                Box(
-                                                    modifier = Modifier.fillMaxSize(),
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    CircularProgressIndicator(
-                                                        modifier = Modifier.padding(16.dp)
-                                                    )
-                                                }
-                                            },
-                                            loading = {
-                                                Box(
-                                                    modifier = Modifier.fillMaxSize(),
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    CircularProgressIndicator(
-                                                        modifier = Modifier.padding(16.dp)
-                                                    )
-                                                }
+                                        onNavigate("manifestList",
+                                            navOptions {
+                                                popUpTo(0) { inclusive = true }
                                             }
                                         )
 
-                                        Column(modifier = Modifier.weight(1f)) {
-                                            Text(
-                                                text = item.dirName,
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(
-                                                        start = 8.dp,
-                                                        end = 8.dp,
-                                                        top = 4.dp,
-                                                        bottom = 0.dp
-                                                    ),
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                textAlign = TextAlign.Center,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis
-                                            )
+                                        onNavigate("fileList/${item.manifestIndex}", null)
 
-                                            Text(
-                                                text = item.fileName,
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(
-                                                        start = 8.dp,
-                                                        end = 8.dp,
-                                                        top = 4.dp,
-                                                        bottom = 0.dp
-                                                    ),
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                textAlign = TextAlign.Center,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis
-                                            )
-
-                                            Text(
-                                                text = "${item.position + 1}/${item.contentCount} ${
-                                                    round(
-                                                        (item.position.toFloat() / item.contentCount.toFloat()) * 100
-                                                    ).toInt()
-                                                }％",
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(
-                                                        start = 8.dp,
-                                                        end = 8.dp,
-                                                        top = 0.dp,
-                                                        bottom = 4.dp
-                                                    ),
-                                                textAlign = TextAlign.Right,
-                                                style = MaterialTheme.typography.bodySmall,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis
-                                            )
-
-                                            Text(
-                                                text = formatTimestamp(item.timestamp),
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(
-                                                        start = 8.dp,
-                                                        end = 8.dp,
-                                                        top = 0.dp,
-                                                        bottom = 4.dp
-                                                    ),
-                                                textAlign = TextAlign.Right,
-                                                style = MaterialTheme.typography.bodySmall,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis
-                                            )
-                                        }
+                                        onNavigate("reader/${item.manifestIndex}/${item.fileIndex}",null)
                                     }
-                                }
+                                )
                             }
                         }
                     }
