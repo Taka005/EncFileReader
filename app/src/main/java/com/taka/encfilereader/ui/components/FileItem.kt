@@ -17,10 +17,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
+import coil3.request.CachePolicy
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.taka.encfilereader.ui.states.FileUiState
 import com.taka.encfilereader.util.formatBytes
 import kotlin.math.round
@@ -40,7 +44,13 @@ fun FileItem(
     ){
         Column{
             SubcomposeAsyncImage(
-                model = fileUiState.imageData,
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(fileUiState.imageData)
+                    .memoryCachePolicy(CachePolicy.ENABLED)
+                    .diskCachePolicy(CachePolicy.DISABLED)
+                    .memoryCacheKey("file_${fileUiState.fileIndex}")
+                    .crossfade(true)
+                    .build(),
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()

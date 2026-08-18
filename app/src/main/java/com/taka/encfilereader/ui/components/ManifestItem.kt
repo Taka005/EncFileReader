@@ -17,10 +17,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
+import coil3.memory.MemoryCache
+import coil3.request.CachePolicy
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.taka.encfilereader.ui.states.ManifestUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,7 +43,13 @@ fun ManifestItem(
     ){
         Column{
             SubcomposeAsyncImage(
-                model = manifestUiState.imageData,
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(manifestUiState.imageData)
+                    .memoryCachePolicy(CachePolicy.ENABLED)
+                    .diskCachePolicy(CachePolicy.DISABLED)
+                    .crossfade(true)
+                    .memoryCacheKey("manifest_${manifestUiState.manifestIndex}")
+                    .build(),
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()

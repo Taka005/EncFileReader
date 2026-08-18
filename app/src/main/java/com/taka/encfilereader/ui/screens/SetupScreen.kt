@@ -50,6 +50,7 @@ fun SetupScreen(
     onFinish: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
+
     val uiState by viewModel.uiState.collectAsState()
 
     var baseUrl by remember { mutableStateOf("") }

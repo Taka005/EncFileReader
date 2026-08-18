@@ -15,8 +15,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
-import coil3.request.CachePolicy
 import coil3.request.ImageRequest
+import coil3.request.crossfade
 import net.engawapg.lib.zoomable.ScrollGesturePropagation
 import net.engawapg.lib.zoomable.rememberZoomState
 import net.engawapg.lib.zoomable.zoomable
@@ -32,8 +32,7 @@ fun Content(
     SubcomposeAsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
             .data(imageData)
-            .memoryCachePolicy(CachePolicy.ENABLED)
-            .diskCachePolicy(CachePolicy.DISABLED)
+            .crossfade(true)
             .build(),
         contentDescription = null,
         modifier = Modifier
