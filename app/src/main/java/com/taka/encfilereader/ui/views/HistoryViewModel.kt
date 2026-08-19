@@ -14,6 +14,10 @@ class HistoryViewModel(
     private val _histories = MutableStateFlow<List<HistoryUiState>>(emptyList())
     val histories = _histories.asStateFlow()
 
+    suspend fun getPositionHistory(manifestIndex: Int, fileIndex: Int): Int?{
+        return manager.historyManager.getPosition(manifestIndex,fileIndex)
+    }
+
     fun loadHistories() {
         viewModelScope.launch {
             _histories.value = manager.historyManager.getAllHistories().mapNotNull { history ->

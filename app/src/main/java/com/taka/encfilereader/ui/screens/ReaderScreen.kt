@@ -70,6 +70,8 @@ import androidx.navigation.NavOptions
 import androidx.navigation.navOptions
 import coil3.compose.SubcomposeAsyncImage
 import com.taka.encfilereader.ui.components.Content
+import com.taka.encfilereader.ui.components.OpenDialog
+import com.taka.encfilereader.ui.states.FileUiState
 import com.taka.encfilereader.ui.views.HistoryViewModel
 import com.taka.encfilereader.ui.views.ReaderViewModel
 import com.taka.encfilereader.util.formatTimestamp
@@ -94,7 +96,8 @@ fun ReaderScreen(
         initialPage = uiState.position,
         pageCount = { uiState.pageCount }
     )
-    var cacheInnerPadding by remember { mutableStateOf(PaddingValues.Zero) }
+    var selectedFileState by remember { mutableStateOf<FileUiState?>(null) }
+    var cacheInnerPadding by remember { mutableStateOf(PaddingValues.Zero) }//要変更
     val isLastPage = pagerState.currentPage == (uiState.pageCount - 1)
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -462,15 +465,35 @@ fun ReaderScreen(
                             modifier = Modifier
                                 .padding(32.dp)
                                 .clickable {
-                                    onNavigate("manifestList",
-                                        navOptions {
-                                            popUpTo(0) { inclusive = true }
+                                    val nextFileIndex = fileIndex + 1
+
+                                    coroutineScope.launch {
+                                        val positionHistory = historyViewModel.getPositionHistory(manifestIndex, nextFileIndex)
+                                        val imageData = viewModel.getContentData(manifestIndex, nextFileIndex, positionHistory ?: 0)
+                                        val fileData = viewModel.getFileData(manifestIndex, nextFileIndex)
+
+                                        if (positionHistory != null&&fileData != null) {
+                                            selectedFileState = FileUiState(
+                                                manifestIndex = manifestIndex,
+                                                fileIndex = nextFileIndex,
+                                                fileName = fileData.originalFileName,
+                                                fileSize = fileData.size,
+                                                contentCount = fileData.contentCount,
+                                                positionHistory = positionHistory,
+                                                imageData = imageData
+                                            )
+                                        } else {
+                                            onNavigate("manifestList",
+                                                navOptions {
+                                                    popUpTo(0) { inclusive = true }
+                                                }
+                                            )
+
+                                            onNavigate("fileList/${manifestIndex}", null)
+
+                                            onNavigate("reader/${manifestIndex}/${nextFileIndex}", null)
                                         }
-                                    )
-
-                                    onNavigate("fileList/${manifestIndex}",null)
-
-                                    onNavigate("reader/${manifestIndex}/${fileIndex + 1}", null)
+                                    }
                                 },
                             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                         ) {
@@ -481,6 +504,51 @@ fun ReaderScreen(
                             )
                         }
                     }
+                }
+
+                if (selectedFileState != null) {
+                    OpenDialog(
+                        fileUiState = selectedFileState!!,
+                        onContinue = {
+                            selectedFileState?.let { data ->
+                                val targetManifestIndex = data.manifestIndex
+                                val targetFileIndex = data.fileIndex
+                                selectedFileState = null
+
+                                onNavigate("manifestList",
+                                    navOptions {
+                                        popUpTo(0) { inclusive = true }
+                                    }
+                                )
+                                onNavigate("fileList/${targetManifestIndex}", null)
+                                onNavigate("reader/${targetManifestIndex}/${targetFileIndex}", null)
+                            }
+                        },
+                        onBegin = {
+                            selectedFileState?.let { data ->
+                                val targetManifestIndex = data.manifestIndex
+                                val targetFileIndex = data.fileIndex
+                                selectedFileState = null
+
+                                coroutineScope.launch {
+                                    viewModel.resetHistory(targetManifestIndex, targetFileIndex)
+                                }
+
+                                onNavigate("manifestList",
+                                    navOptions {
+                                        popUpTo(0) { inclusive = true }
+                                    }
+                                )
+
+                                onNavigate("fileList/${targetManifestIndex}", null)
+
+                                onNavigate("reader/${targetManifestIndex}/${targetFileIndex}", null)
+                            }
+                        },
+                        onCancel = {
+                            selectedFileState = null
+                        }
+                    )
                 }
             }
         }

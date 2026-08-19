@@ -232,7 +232,7 @@ fun FileListScreen(
             )
         },
         floatingActionButton = {
-            if(histories.count() != 0) {
+            if(histories.isNotEmpty()) {
                 FloatingActionButton(
                     onClick = {
                         val latestHistory = histories.first()

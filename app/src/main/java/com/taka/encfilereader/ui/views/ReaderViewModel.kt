@@ -3,6 +3,7 @@ package com.taka.encfilereader.ui.views
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.taka.encfilereader.manager.StorageManager
+import com.taka.encfilereader.model.FileMetaData
 import com.taka.encfilereader.ui.states.ReaderUiState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,6 +48,10 @@ class ReaderViewModel(
         }
     }
 
+    suspend fun resetHistory(manifestIndex: Int, fileIndex: Int){
+        manager.historyManager.savePosition(manifestIndex, fileIndex,0)
+    }
+
     fun setPosition(manifestIndex: Int, fileIndex: Int, newPosition: Int) {
         _uiState.value = _uiState.value.copy(position = newPosition)
 
@@ -55,6 +60,18 @@ class ReaderViewModel(
         viewModelScope.launch {
             manager.historyManager.savePosition(manifestIndex, fileIndex, newPosition)
         }
+    }
+
+    suspend fun getContentData(manifestIndex: Int, fileIndex: Int,contentIndex: Int): ByteArray?{
+        return manager.getContentData(manifestIndex, fileIndex, contentIndex).getOrNull()
+    }
+
+    fun getFileData(manifestIndex: Int, fileIndex: Int): FileMetaData? {
+        val currentStorage = manager.storage ?: return null
+
+        val manifest = currentStorage.getManifest(manifestIndex).getOrNull() ?: return null
+
+        return manifest.getFileMetaData(fileIndex).getOrNull()
     }
 
     fun loadPage(manifestIndex: Int, fileIndex: Int, contentIndex: Int) {

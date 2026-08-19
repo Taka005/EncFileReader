@@ -229,7 +229,7 @@ fun ManifestListScreen(
             )
         },
         floatingActionButton = {
-            if(histories.count() != 0) {
+            if(histories.isNotEmpty()) {
                 FloatingActionButton(
                     onClick = {
                         val latestHistory = histories.first()
@@ -243,10 +243,7 @@ fun ManifestListScreen(
 
                         onNavigate("fileList/${latestHistory.manifestIndex}", null)
 
-                        onNavigate(
-                            "reader/${latestHistory.manifestIndex}/${latestHistory.fileIndex}",
-                            null
-                        )
+                        onNavigate("reader/${latestHistory.manifestIndex}/${latestHistory.fileIndex}", null)
                     }
                 ) {
                     Icon(
