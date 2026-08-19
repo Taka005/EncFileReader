@@ -207,25 +207,32 @@ fun FileListScreen(
                             }
 
                             DropdownMenuItem(
-                                text = { Text(if (sortType == SortType.NONE) "✓ ソートなし" else "ソートなし") },
+                                text = {
+                                    when (sortType) {
+                                        SortType.NONE -> {
+                                            Text("ソート: なし")
+                                        }
+                                        SortType.NAME_ASC -> {
+                                            Text("ソート: 名前順 (昇順)")
+                                        }
+                                        SortType.NAME_DESC -> {
+                                            Text("ソート: 名前順 (降順)")
+                                        }
+                                    }
+                                },
                                 onClick = {
-                                    viewModel.updateSortType(SortType.NONE)
-                                    isShowMenu = false
-                                }
-                            )
+                                    when (sortType) {
+                                        SortType.NONE -> {
+                                            viewModel.updateSortType(SortType.NAME_ASC)
+                                        }
+                                        SortType.NAME_ASC -> {
+                                            viewModel.updateSortType(SortType.NAME_DESC)
+                                        }
+                                        SortType.NAME_DESC -> {
+                                            viewModel.updateSortType(SortType.NONE)
+                                        }
+                                    }
 
-                            DropdownMenuItem(
-                                text = { Text(if (sortType == SortType.NAME_ASC) "✓ 名前順 (昇順)" else "名前順 (昇順)") },
-                                onClick = {
-                                    viewModel.updateSortType(SortType.NAME_ASC)
-                                    isShowMenu = false
-                                }
-                            )
-
-                            DropdownMenuItem(
-                                text = { Text(if (sortType == SortType.NAME_DESC) "✓ 名前順 (降順)" else "名前順 (降順)") },
-                                onClick = {
-                                    viewModel.updateSortType(SortType.NAME_DESC)
                                     isShowMenu = false
                                 }
                             )
