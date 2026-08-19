@@ -60,6 +60,7 @@ import com.taka.encfilereader.ui.components.HistoryItem
 import com.taka.encfilereader.ui.components.ManifestItem
 import com.taka.encfilereader.ui.views.HistoryViewModel
 import com.taka.encfilereader.ui.views.ManifestListViewModel
+import com.taka.encfilereader.util.SortType
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,10 +71,11 @@ fun ManifestListScreen(
     historyViewModel: HistoryViewModel,
     onNavigate: (route: String, navOptions: NavOptions?)-> Unit
 ){
-    val items by viewModel.uiState.collectAsState()
+    val items by viewModel.uiState.collectAsState(initial = emptyList())
     var isShowMenu by remember { mutableStateOf(false) }
     var isSearching by remember { mutableStateOf(false) }
     val searchQuery by viewModel.searchQuery.collectAsState()
+    val sortType by viewModel.sortType.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val histories by historyViewModel.histories.collectAsState()
@@ -197,7 +199,35 @@ fun ManifestListScreen(
                                         onNavigate("reader/${latestHistory.manifestIndex}/${latestHistory.fileIndex}",null)
                                     }
                                 )
+
+                                HorizontalDivider()
                             }
+
+                            DropdownMenuItem(
+                                text = { Text(if (sortType == SortType.NONE) "✓ ソートなし" else "ソートなし") },
+                                onClick = {
+                                    viewModel.updateSortType(SortType.NONE)
+                                    isShowMenu = false
+                                }
+                            )
+
+                            DropdownMenuItem(
+                                text = { Text(if (sortType == SortType.NAME_ASC) "✓ 名前順 (昇順)" else "名前順 (昇順)") },
+                                onClick = {
+                                    viewModel.updateSortType(SortType.NAME_ASC)
+                                    isShowMenu = false
+                                }
+                            )
+
+                            DropdownMenuItem(
+                                text = { Text(if (sortType == SortType.NAME_DESC) "✓ 名前順 (降順)" else "名前順 (降順)") },
+                                onClick = {
+                                    viewModel.updateSortType(SortType.NAME_DESC)
+                                    isShowMenu = false
+                                }
+                            )
+
+                            HorizontalDivider()
 
                             DropdownMenuItem(
                                 text = { Text("設定") },
