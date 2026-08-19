@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
@@ -27,6 +28,7 @@ import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -180,29 +182,6 @@ fun ManifestListScreen(
                             expanded = isShowMenu,
                             onDismissRequest = { isShowMenu = false }
                         ) {
-                            if(histories.count() != 0) {
-                                DropdownMenuItem(
-                                    text = { Text("最新の履歴") },
-                                    onClick = {
-                                        isShowMenu = false
-
-                                        val latestHistory = histories.last()
-
-                                        onNavigate("manifestList",
-                                            navOptions {
-                                                popUpTo(0) { inclusive = true }
-                                            }
-                                        )
-
-                                        onNavigate("fileList/${latestHistory.manifestIndex}", null)
-
-                                        onNavigate("reader/${latestHistory.manifestIndex}/${latestHistory.fileIndex}",null)
-                                    }
-                                )
-
-                                HorizontalDivider()
-                            }
-
                             DropdownMenuItem(
                                 text = {
                                     when (sortType) {
@@ -248,6 +227,34 @@ fun ManifestListScreen(
                     }
                 }
             )
+        },
+        floatingActionButton = {
+            if(histories.count() != 0) {
+                FloatingActionButton(
+                    onClick = {
+                        val latestHistory = histories.last()
+
+                        onNavigate(
+                            "manifestList",
+                            navOptions {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        )
+
+                        onNavigate("fileList/${latestHistory.manifestIndex}", null)
+
+                        onNavigate(
+                            "reader/${latestHistory.manifestIndex}/${latestHistory.fileIndex}",
+                            null
+                        )
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.History,
+                        contentDescription = null
+                    )
+                }
+            }
         }
     ) { innerPadding ->
         ModalNavigationDrawer(
@@ -293,22 +300,23 @@ fun ManifestListScreen(
                             contentPadding = PaddingValues(2.dp)
                         ){
                             items(histories) { item ->
-                                HistoryItem(
-                                    item,
-                                    {
-                                        coroutineScope.launch { drawerState.close() }
+                                HistoryItem(item) {
+                                    coroutineScope.launch { drawerState.close() }
 
-                                        onNavigate("manifestList",
-                                            navOptions {
-                                                popUpTo(0) { inclusive = true }
-                                            }
-                                        )
+                                    onNavigate(
+                                        "manifestList",
+                                        navOptions {
+                                            popUpTo(0) { inclusive = true }
+                                        }
+                                    )
 
-                                        onNavigate("fileList/${item.manifestIndex}", null)
+                                    onNavigate("fileList/${item.manifestIndex}", null)
 
-                                        onNavigate("reader/${item.manifestIndex}/${item.fileIndex}",null)
-                                    }
-                                )
+                                    onNavigate(
+                                        "reader/${item.manifestIndex}/${item.fileIndex}",
+                                        null
+                                    )
+                                }
                             }
                         }
                     }
