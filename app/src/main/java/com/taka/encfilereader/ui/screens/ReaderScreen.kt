@@ -97,7 +97,6 @@ fun ReaderScreen(
         pageCount = { uiState.pageCount }
     )
     var selectedFileState by remember { mutableStateOf<FileUiState?>(null) }
-    var cacheInnerPadding by remember { mutableStateOf(PaddingValues.Zero) }//要変更
     val isLastPage = pagerState.currentPage == (uiState.pageCount - 1)
     val coroutineScope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -191,17 +190,13 @@ fun ReaderScreen(
             }
         }
     ) { innerPadding ->
-        if (isUiVisible && innerPadding.calculateTopPadding() > 10.dp) {
-            cacheInnerPadding = innerPadding
-        }
-
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
                 ModalDrawerSheet(
                     modifier = Modifier
                         .fillMaxWidth(fraction = 0.7f)
-                        .padding(cacheInnerPadding),
+                        .padding(innerPadding),
                     windowInsets = WindowInsets(0, 0, 0, 0)
                 ){
                     Text(
@@ -367,7 +362,7 @@ fun ReaderScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(cacheInnerPadding)
+                    .padding(innerPadding)
             ) {
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                     HorizontalPager(
