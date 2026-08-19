@@ -3,15 +3,9 @@ package com.taka.encfilereader.manager
 import android.content.Context
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
+import com.taka.encfilereader.util.HistoryItem
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-
-data class HistoryItem(
-    val manifestIndex: Int,
-    val fileIndex: Int,
-    val position: Int,
-    val timestamp: Long
-)
 
 private val Context.dataStore by preferencesDataStore(name = "history")
 

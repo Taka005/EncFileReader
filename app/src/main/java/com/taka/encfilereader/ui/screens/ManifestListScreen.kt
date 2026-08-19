@@ -232,7 +232,7 @@ fun ManifestListScreen(
             if(histories.count() != 0) {
                 FloatingActionButton(
                     onClick = {
-                        val latestHistory = histories.last()
+                        val latestHistory = histories.first()
 
                         onNavigate(
                             "manifestList",
